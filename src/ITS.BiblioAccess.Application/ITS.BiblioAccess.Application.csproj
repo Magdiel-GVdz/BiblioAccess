@@ -12,12 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\ITS.BiblioAccess.Domain\ITS.BiblioAccess.Domain.csproj" />
+    <Folder Include="Dtos\" />
+    <Folder Include="UseCases\EntryRecords\Queries\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\" />
-    <Folder Include="UseCases\EntryRecords\Queries\" />
+    <ProjectReference Include="..\ITS.BiblioAccess.Domain\ITS.BiblioAccess.Domain.csproj" />
   </ItemGroup>
 
 </Project>

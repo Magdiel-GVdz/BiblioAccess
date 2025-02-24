@@ -7,9 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C9A01AC3-4FE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITS.BiblioAccess.Domain", "src\ITS.BiblioAccess.Domain\ITS.BiblioAccess.Domain.csproj", "{E285897A-CAD1-4DB2-8A4D-873E4DB139C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITS.BiblioAccess.Application", "ITS.BiblioAccess.Application\ITS.BiblioAccess.Application.csproj", "{102B8303-5EA0-41A3-B103-67A281985BED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITS.BiblioAccess.Application", "src\ITS.BiblioAccess.Application\ITS.BiblioAccess.Application.csproj", "{102B8303-5EA0-41A3-B103-67A281985BED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITS.BiblioAccess.Infrastructure", "ITS.BiblioAccess.Infrastructure\ITS.BiblioAccess.Infrastructure.csproj", "{89F4A3FA-1C0E-4D1D-A608-E7973C019A88}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITS.BiblioAccess.Infrastructure", "src\ITS.BiblioAccess.Infrastructure\ITS.BiblioAccess.Infrastructure.csproj", "{89F4A3FA-1C0E-4D1D-A608-E7973C019A88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

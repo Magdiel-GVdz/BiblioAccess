@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\ITS.BiblioAccess.Domain\ITS.BiblioAccess.Domain.csproj" />
+    <ProjectReference Include="..\ITS.BiblioAccess.Domain\ITS.BiblioAccess.Domain.csproj" />
   </ItemGroup>
 
 </Project>

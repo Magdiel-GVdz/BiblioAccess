@@ -11,6 +11,5 @@ namespace ITS.BiblioAccess.Domain.Repositories;
 public interface ISystemConfigurationRepository
 {
     Task<Result<SystemConfiguration>> GetByKeyAsync(string key, CancellationToken cancellationToken);
-    //Task<Result> AddAsync(SystemConfiguration config, CancellationToken cancellationToken);
     Task<Result> UpdateAsync(SystemConfiguration config, CancellationToken cancellationToken);
 }
