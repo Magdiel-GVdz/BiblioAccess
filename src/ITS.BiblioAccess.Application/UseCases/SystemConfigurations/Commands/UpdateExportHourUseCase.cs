@@ -20,21 +20,28 @@ public class UpdateExportHourUseCase
 
         public async Task<Result> Handle(UpdateExportHourCommand request, CancellationToken cancellationToken)
         {
+            // Obtener la configuración existente o crear una nueva si no hay ninguna
+            var existingConfigResult = await _configRepository.GetAsync(cancellationToken);
+            SystemConfiguration config;
 
-            // Buscar la configuración actual
-            var existingConfigResult = await _configRepository.GetByKeyAsync("ExportHour", cancellationToken);
-            if (existingConfigResult.IsFailed)
-                existingConfigResult = SystemConfiguration.Create(request.NewHour);
+            if (existingConfigResult.IsSuccess)
+            {
+                config = existingConfigResult.Value;
+                var updateResult = config.UpdateExportHour(request.NewHour);
+                if (updateResult.IsFailed)
+                    return Result.Fail(updateResult.Errors);
+            }
+            else
+            {
+                var createResult = SystemConfiguration.Create(request.NewHour);
+                if (createResult.IsFailed)
+                    return Result.Fail(createResult.Errors);
 
-            var config = existingConfigResult.Value;
+                config = createResult.Value;
+            }
 
-            // Actualizar el valor
-            var updateResult = config.UpdateExportHour(request.NewHour);
-            if (updateResult.IsFailed)
-                return Result.Fail(updateResult.Errors);
-
-            // Guardar la nueva configuración en la BD
-            return await _configRepository.UpdateAsync(config, cancellationToken);
+            // Guardar la configuración (ya sea nueva o actualizada)
+            return await _configRepository.SetAsync(config, cancellationToken);
         }
     }
 }

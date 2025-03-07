@@ -1,15 +1,13 @@
 ﻿using FluentResults;
 using ITS.BiblioAccess.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace ITS.BiblioAccess.Domain.Repositories;
-
-public interface ISystemConfigurationRepository
+namespace ITS.BiblioAccess.Domain.Repositories
 {
-    Task<Result<SystemConfiguration>> GetByKeyAsync(string key, CancellationToken cancellationToken);
-    Task<Result> UpdateAsync(SystemConfiguration config, CancellationToken cancellationToken);
+    public interface ISystemConfigurationRepository
+    {
+        Task<Result<SystemConfiguration>> GetAsync(CancellationToken ct);
+        Task<Result> SetAsync(SystemConfiguration configuration, CancellationToken ct);
+    }
 }

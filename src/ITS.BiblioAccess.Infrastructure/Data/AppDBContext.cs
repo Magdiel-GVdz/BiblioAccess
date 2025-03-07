@@ -1,13 +1,5 @@
-﻿using ITS.BiblioAccess.Domain.Entities;
-using ITS.BiblioAccess.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ITS.BiblioAccess.Infrastructure.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using ITS.BiblioAccess.Domain.Entities;
 
 public class AppDBContext : DbContext
 {
@@ -25,61 +17,58 @@ public class AppDBContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         // Configuración de Career
-        modelBuilder.Entity<Career>(entity =>
-        {
-            entity.HasKey(c => c.CareerId);
-            entity.Property(c => c.CareerId).ValueGeneratedNever();
+        modelBuilder.Entity<Career>()
+            .HasKey(c => c.CareerId);
 
-            entity.Property(c => c.Name)
-                .HasConversion(
-                    name => name.Value,
-                    value => CareerName.Create(value).Value
-                )
-                .HasMaxLength(100)
-                .IsRequired();
+        modelBuilder.Entity<Career>()
+            .Property(c => c.CareerId)
+            .ValueGeneratedNever();
 
-            entity.Property(c => c.IsActive)
-                .IsRequired();
-        });
+        modelBuilder.Entity<Career>()
+            .OwnsOne(c => c.Name, n =>
+            {
+                n.Property(nv => nv.Value)
+                 .HasColumnName("Name")
+                 .HasMaxLength(100)
+                 .IsRequired();
+            });
 
         // Configuración de EntryRecord
-        modelBuilder.Entity<EntryRecord>(entity =>
-        {
-            entity.HasKey(e => e.EntryId);
-            entity.Property(e => e.EntryId).ValueGeneratedNever();
+        modelBuilder.Entity<EntryRecord>()
+            .HasKey(e => e.EntryId);
 
-            entity.Property(e => e.Timestamp)
-                .IsRequired();
+        modelBuilder.Entity<EntryRecord>()
+            .Property(e => e.EntryId)
+            .ValueGeneratedNever();
 
-            entity.Property(e => e.UserType)
-                .HasConversion<int>()
-                .IsRequired();
+        modelBuilder.Entity<EntryRecord>()
+            .Property(e => e.Timestamp)
+            .IsRequired();
 
-            entity.Property(e => e.Gender)
-                .HasConversion<int>()
-                .IsRequired();
+        modelBuilder.Entity<EntryRecord>()
+            .Property(e => e.UserType)
+            .HasConversion<int>() // Guardamos el Enum como entero
+            .IsRequired();
 
-            entity.Property(e => e.CareerId)
-                .IsRequired(false);
-
-            entity.HasOne<Career>()
-                .WithMany()
-                .HasForeignKey(e => e.CareerId)
-                .OnDelete(DeleteBehavior.SetNull);
-        });
+        modelBuilder.Entity<EntryRecord>()
+            .Property(e => e.Gender)
+            .HasConversion<int>()
+            .IsRequired();
 
         // Configuración de SystemConfiguration
-        modelBuilder.Entity<SystemConfiguration>(entity =>
-        {
-            entity.HasKey(s => s.SystemConfigurationId);
-            entity.Property(s => s.SystemConfigurationId).ValueGeneratedNever();
+        modelBuilder.Entity<SystemConfiguration>()
+            .HasKey(s => s.SystemConfigurationId);
 
-            entity.Property(s => s.ExportHour)
-                .HasConversion(
-                    hour => hour.Value,
-                    value => ExportHour.Create(value).Value
-                )
-                .IsRequired();
-        });
+        modelBuilder.Entity<SystemConfiguration>()
+            .Property(s => s.SystemConfigurationId)
+            .ValueGeneratedNever();
+
+        modelBuilder.Entity<SystemConfiguration>()
+            .OwnsOne(s => s.ExportHour, eh =>
+            {
+                eh.Property(ehv => ehv.Value)
+                  .HasColumnName("ExportHour")
+                  .IsRequired();
+            });
     }
 }
