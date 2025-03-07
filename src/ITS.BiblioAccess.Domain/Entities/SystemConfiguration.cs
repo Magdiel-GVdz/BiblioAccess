@@ -8,6 +8,8 @@ public class SystemConfiguration
     public Guid SystemConfigurationId { get; private init; }
     public ExportHour ExportHour { get; private set; }
 
+    private SystemConfiguration() { }
+
     private SystemConfiguration(Guid id, ExportHour exportHour)
     {
         SystemConfigurationId = id;

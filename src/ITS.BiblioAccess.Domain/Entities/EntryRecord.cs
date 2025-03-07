@@ -20,6 +20,8 @@ public class EntryRecord
         Gender = gender;
     }
 
+    private EntryRecord() { }
+
     public static Result<EntryRecord> Create(UserType userType, Gender gender, Guid? careerId = null)
     {
         var errors = new List<IError>();

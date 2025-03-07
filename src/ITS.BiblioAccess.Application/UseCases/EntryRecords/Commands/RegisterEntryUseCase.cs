@@ -31,7 +31,6 @@ public class RegisterEntryUseCase
         public async Task<Result<Guid>> Handle(RegisterEntryCommand request,
             CancellationToken cancellationToken)
         {
-            // 1. If user is student, validate CareerId is present and career is active
             if (request.UserType == UserType.Student)
             {
                 if (request.CareerId == null)
@@ -54,12 +53,12 @@ public class RegisterEntryUseCase
                 }
             }
 
-            // 2. Create EntryRecord (Domain logic might be encapsulated in a factory method)
             var recordResult = EntryRecord.Create(
                 userType: request.UserType,
                 gender: request.Gender,
                 careerId: request.CareerId
             );
+
             if (recordResult.IsFailed)
             {
                 return Result.Fail(recordResult.Errors);
@@ -67,7 +66,6 @@ public class RegisterEntryUseCase
 
             var record = recordResult.Value;
 
-            // 3. Persist EntryRecord
             var addResult = await _entryRecordRepository.AddAsync(record, cancellationToken);
             if (addResult.IsFailed)
             {

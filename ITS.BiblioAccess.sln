@@ -5,11 +5,13 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C9A01AC3-4FE8-401E-8694-00553B246632}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITS.BiblioAccess.Domain", "src\ITS.BiblioAccess.Domain\ITS.BiblioAccess.Domain.csproj", "{E285897A-CAD1-4DB2-8A4D-873E4DB139C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ITS.BiblioAccess.Domain", "src\ITS.BiblioAccess.Domain\ITS.BiblioAccess.Domain.csproj", "{E285897A-CAD1-4DB2-8A4D-873E4DB139C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITS.BiblioAccess.Application", "src\ITS.BiblioAccess.Application\ITS.BiblioAccess.Application.csproj", "{102B8303-5EA0-41A3-B103-67A281985BED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ITS.BiblioAccess.Application", "src\ITS.BiblioAccess.Application\ITS.BiblioAccess.Application.csproj", "{102B8303-5EA0-41A3-B103-67A281985BED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITS.BiblioAccess.Infrastructure", "src\ITS.BiblioAccess.Infrastructure\ITS.BiblioAccess.Infrastructure.csproj", "{89F4A3FA-1C0E-4D1D-A608-E7973C019A88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ITS.BiblioAccess.Infrastructure", "src\ITS.BiblioAccess.Infrastructure\ITS.BiblioAccess.Infrastructure.csproj", "{89F4A3FA-1C0E-4D1D-A608-E7973C019A88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITS.BiblioAccess.Presentation", "src\ITS.BiblioAccess.Presentation\ITS.BiblioAccess.Presentation.csproj", "{B201A12E-7417-4CBB-BF70-BD786140A7DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{89F4A3FA-1C0E-4D1D-A608-E7973C019A88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89F4A3FA-1C0E-4D1D-A608-E7973C019A88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89F4A3FA-1C0E-4D1D-A608-E7973C019A88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B201A12E-7417-4CBB-BF70-BD786140A7DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B201A12E-7417-4CBB-BF70-BD786140A7DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B201A12E-7417-4CBB-BF70-BD786140A7DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B201A12E-7417-4CBB-BF70-BD786140A7DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -37,6 +43,7 @@ Global
 		{E285897A-CAD1-4DB2-8A4D-873E4DB139C7} = {C9A01AC3-4FE8-401E-8694-00553B246632}
 		{102B8303-5EA0-41A3-B103-67A281985BED} = {C9A01AC3-4FE8-401E-8694-00553B246632}
 		{89F4A3FA-1C0E-4D1D-A608-E7973C019A88} = {C9A01AC3-4FE8-401E-8694-00553B246632}
+		{B201A12E-7417-4CBB-BF70-BD786140A7DB} = {C9A01AC3-4FE8-401E-8694-00553B246632}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2CA023D6-5D27-4C56-B768-D69C51250458}

@@ -9,14 +9,16 @@ public class Career
     public CareerName Name { get; private set; }
     public bool IsActive { get; private set; }
 
-    private Career(Guid careerId, CareerName careerName)
+    private Career() {}
+
+    private Career(Guid careerId, CareerName careerName, bool isActive)
     {
         CareerId = careerId;
         Name = careerName;
-        IsActive = true;
+        IsActive = isActive;
     }
 
-    public static Result<Career> Create(Guid careerId, string careerName)
+    public static Result<Career> Create(Guid careerId, string careerName, bool isActive)
     {
         var errors = new List<IError>();
 
@@ -33,12 +35,12 @@ public class Career
 
         return errors.Count > 0 ?
             Result.Fail(errors) :
-            Result.Ok(new Career(careerId, nameResult.Value));
+            Result.Ok(new Career(careerId, nameResult.Value, isActive));
     }
 
     public static Result<Career> Create(string careerName)
     {
-        return Create(Guid.NewGuid(), careerName);
+        return Create(Guid.NewGuid(), careerName, true);
     }
 
     public Result UpdateName(string newCareerName)
