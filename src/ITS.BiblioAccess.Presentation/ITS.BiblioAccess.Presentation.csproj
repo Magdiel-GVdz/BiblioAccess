@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentResults" Version="3.16.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2" />
@@ -17,6 +19,10 @@
   <ItemGroup>
     <ProjectReference Include="..\ITS.BiblioAccess.Application\ITS.BiblioAccess.Application.csproj" />
     <ProjectReference Include="..\ITS.BiblioAccess.Infrastructure\ITS.BiblioAccess.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Forms\EntryRecors\" />
   </ItemGroup>
 
 </Project>

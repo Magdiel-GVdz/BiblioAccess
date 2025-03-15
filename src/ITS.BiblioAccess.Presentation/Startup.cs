@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ITS.BiblioAccess.Application;
 using ITS.BiblioAccess.Infrastructure;
+using ITS.BiblioAccess.Presentation.Forms;
+using ITS.BiblioAccess.Presentation.Forms.Careers;
+using ITS.BiblioAccess.Presentation.Forms.SystemConfigurations;
 
 
 namespace ITS.BiblioAccess.Presentation;
@@ -21,5 +24,9 @@ public static class Startup
 
         // Registrar MainForm y otros formularios
         services.AddTransient<MainForm>();
+        services.AddTransient<AddCareerForm>();
+        services.AddTransient<CareersForm>();
+        services.AddTransient<SystemConfigurationForm>();
+        services.AddTransient<EditCareerForm>();
     }
 }

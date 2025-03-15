@@ -1,4 +1,5 @@
 using ITS.BiblioAccess.Infrastructure.Data;
+using ITS.BiblioAccess.Presentation.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,7 +51,7 @@ namespace ITS.BiblioAccess.Presentation
 
         static string GetOrCreateDatabasePath()
         {
-            string dbPath = _configuration["DatabaseSettings:DatabasePath"];
+            string dbPath = _configuration["DatabaseSettings:DatabasePath"]!;
 
             // Si no está configurado, usar la ruta por defecto
             if (string.IsNullOrWhiteSpace(dbPath))
