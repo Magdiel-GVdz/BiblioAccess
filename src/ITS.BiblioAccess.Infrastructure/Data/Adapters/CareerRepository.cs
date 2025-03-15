@@ -28,6 +28,25 @@ public class CareerRepository : ICareerRepository
         }
     }
 
+    public async Task<Result> DeleteAsync(Guid id, CancellationToken ct)
+    {
+        try
+        {
+            var career = await _context.Careers.FindAsync(new object[] { id }, ct);
+            if (career is null)
+                return Result.Fail("Career not found.");
+
+            _context.Careers.Remove(career);
+            await _context.SaveChangesAsync(ct);
+
+            return Result.Ok();
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail($"Error deleting career: {ex.Message}");
+        }
+    }
+
     public async Task<Result<List<Career>>> GetAllActiveAsync(CancellationToken ct)
     {
         try

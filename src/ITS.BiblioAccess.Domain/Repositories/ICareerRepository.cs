@@ -10,4 +10,5 @@ public interface ICareerRepository
     Task<Result> UpdateAsync(Career career, CancellationToken ct);
     Task<Result<List<Career>>> GetAllActiveAsync(CancellationToken ct);
     Task<Result<List<Career>>> GetAllAsync(CancellationToken ct);
+    Task<Result> DeleteAsync(Guid id, CancellationToken ct);
 }

@@ -7,6 +7,7 @@ public class AppDBContext : DbContext
         : base(options)
     {
     }
+    public AppDBContext() { }
 
     public DbSet<Career> Careers { get; set; }
     public DbSet<EntryRecord> EntryRecords { get; set; }
