@@ -27,9 +27,7 @@ public class CreateCareerUseCase
 
             var career = careerResult.Value;
 
-            await _careerRepository.AddAsync(career, cancellationToken);
-
-            return Result.Ok(career.CareerId);
+            return await _careerRepository.AddAsync(career, cancellationToken);
         }
     }
 }

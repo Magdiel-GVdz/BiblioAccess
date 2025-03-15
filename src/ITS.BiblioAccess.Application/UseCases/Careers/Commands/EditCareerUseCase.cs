@@ -6,9 +6,9 @@ namespace ITS.BiblioAccess.Application.UseCases.Careers.Commands;
 
 public class EditCareerUseCase
 {
-    public record UpdateCareerCommand(Guid CareerId, string NewName) : IRequest<Result>;
+    public sealed record UpdateCareerCommand(Guid CareerId, string? NewName, bool? IsActive) : IRequest<Result>;
 
-    public class UpdateCareerCommandHandler : IRequestHandler<UpdateCareerCommand, Result>
+    public sealed class UpdateCareerCommandHandler : IRequestHandler<UpdateCareerCommand, Result>
     {
         private readonly ICareerRepository _careerRepository;
 
@@ -20,15 +20,30 @@ public class EditCareerUseCase
         public async Task<Result> Handle(UpdateCareerCommand request, CancellationToken cancellationToken)
         {
             var career = await _careerRepository.GetByIdAsync(request.CareerId, cancellationToken);
-            if (career == null)
+            if (career.IsFailed)
             {
                 return Result.Fail("Career not found.");
             }
 
-            var updateResult = career.Value.UpdateName(request.NewName);
-            if (updateResult.IsFailed)
+            if (!string.IsNullOrWhiteSpace(request.NewName))
             {
-                return Result.Fail(updateResult.Errors);
+                var updateResult = career.Value.UpdateName(request.NewName);
+                if (updateResult.IsFailed)
+                {
+                    return Result.Fail(updateResult.Errors);
+                }
+            }
+
+            if (request.IsActive.HasValue)
+            {
+                if (request.IsActive.Value)
+                {
+                    career.Value.Activate();
+                }
+                else
+                {
+                    career.Value.Deactivate();
+                }
             }
 
             await _careerRepository.UpdateAsync(career.Value, cancellationToken);
