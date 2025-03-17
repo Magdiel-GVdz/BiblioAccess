@@ -88,6 +88,13 @@ public class CareerRepository : ICareerRepository
         }
     }
 
+    public async Task<List<Career>> GetByIdsAsync(List<Guid> careerIds)
+    {
+        return await _context.Careers
+            .Where(c => careerIds.Contains(c.CareerId))
+            .ToListAsync();
+    }
+
     public async Task<Result> UpdateAsync(Career career, CancellationToken ct)
     {
         try

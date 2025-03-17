@@ -1,48 +1,49 @@
 ﻿using FluentResults;
 using ITS.BiblioAccess.Domain.ValueObjects;
 
-namespace ITS.BiblioAccess.Domain.Entities;
-
-public class EntryRecord
+namespace ITS.BiblioAccess.Domain.Entities
 {
-    public Guid EntryId { get; private init; }
-    public DateTime Timestamp { get; private init; }
-    public UserType UserType { get; private init; }
-    public Guid? CareerId { get; private init; }
-    public Gender Gender { get; private init; }
-
-    private EntryRecord(Guid entryId, DateTime timestamp, UserType userType, Guid? careerId, Gender gender)
+    public class EntryRecord
     {
-        EntryId = entryId;
-        Timestamp = timestamp;
-        UserType = userType;
-        CareerId = careerId;
-        Gender = gender;
-    }
+        public Guid EntryId { get; private init; }
+        public DateTime Timestamp { get; private init; }
+        public UserType UserType { get; private init; }
+        public Guid? CareerId { get; private init; }
+        public Gender Gender { get; private init; }
 
-    private EntryRecord() { }
-
-    public static Result<EntryRecord> Create(UserType userType, Gender gender, Guid? careerId = null)
-    {
-        var errors = new List<IError>();
-
-        if (userType == UserType.Student && careerId == null)
+        private EntryRecord(Guid entryId, DateTime timestamp, UserType userType, Guid? careerId, Gender gender)
         {
-            errors.Add(new Error("Students must have a career assigned."));
+            EntryId = entryId;
+            Timestamp = timestamp;
+            UserType = userType;
+            CareerId = careerId;
+            Gender = gender;
         }
 
-        if (!Enum.IsDefined(typeof(UserType), userType))
-        {
-            errors.Add(new Error("Invalid user type."));
-        }
+        private EntryRecord() { }
 
-        if (!Enum.IsDefined(typeof(Gender), gender))
+        public static Result<EntryRecord> Create(UserType userType, Gender gender, Guid? careerId = null)
         {
-            errors.Add(new Error("Invalid gender type."));
-        }
+            var errors = new List<IError>();
 
-        return errors.Count > 0
-            ? Result.Fail(errors)
-            : Result.Ok(new EntryRecord(Guid.NewGuid(), DateTime.Now, userType, careerId, gender));
+            if (userType == UserType.Student && careerId == null)
+            {
+                errors.Add(new Error("Students must have a career assigned."));
+            }
+
+            if (!Enum.IsDefined(userType))
+            {
+                errors.Add(new Error("Invalid user type."));
+            }
+
+            if (!Enum.IsDefined(gender))
+            {
+                errors.Add(new Error("Invalid gender type."));
+            }
+
+            return errors.Count > 0
+                ? Result.Fail(errors)
+                : Result.Ok(new EntryRecord(Guid.NewGuid(), DateTime.UtcNow, userType, careerId, gender));
+        }
     }
 }
