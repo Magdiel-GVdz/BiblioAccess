@@ -16,7 +16,7 @@ public enum Gender
 
 public static class GenderExtensions
 {
-    public static string GetEnumDescription(Gender value)
+    public static string GetEnumDescription(this Gender value)
     {
         var field = value.GetType().GetField(value.ToString());
         var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));

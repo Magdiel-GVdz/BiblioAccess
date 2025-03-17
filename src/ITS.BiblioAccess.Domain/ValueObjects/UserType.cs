@@ -16,7 +16,7 @@ public enum UserType
 
 public static class UserTypeExtensions
 {
-    public static string GetEnumDescription(UserType value)
+    public static string GetEnumDescription(this UserType value)
     {
         var field = value.GetType().GetField(value.ToString());
         var attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
