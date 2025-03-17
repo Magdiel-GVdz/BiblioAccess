@@ -87,6 +87,7 @@
             Controls.Add(btnAdd);
             Controls.Add(dgvCareers);
             Name = "CareersForm";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Carreras";
             Load += CareersForm_Load;
             ((System.ComponentModel.ISupportInitialize)dgvCareers).EndInit();

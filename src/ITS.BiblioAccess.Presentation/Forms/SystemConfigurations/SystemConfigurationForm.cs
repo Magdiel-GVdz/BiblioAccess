@@ -17,6 +17,7 @@ namespace ITS.BiblioAccess.Presentation.Forms.SystemConfigurations
     public partial class SystemConfigurationForm : Form
     {
         private readonly IMediator _mediator;
+        public event Action<TimeOnly> OnExportHourUpdated;
         public SystemConfigurationForm(IMediator mediator)
         {
             _mediator = mediator;
@@ -36,6 +37,8 @@ namespace ITS.BiblioAccess.Presentation.Forms.SystemConfigurations
             if (result.IsSuccess)
             {
                 MessageBox.Show("Hora de exportación actualizada correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                OnExportHourUpdated?.Invoke(selectedTime);
                 this.Close();
             }
             else

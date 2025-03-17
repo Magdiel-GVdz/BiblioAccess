@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static ITS.BiblioAccess.Application.UseCases.Careers.Commands.DeleteCareerUseCase;
 using static ITS.BiblioAccess.Application.UseCases.Careers.Queries.GetAllCareersUseCase;
 
 namespace ITS.BiblioAccess.Presentation.Forms.Careers
@@ -82,24 +83,53 @@ namespace ITS.BiblioAccess.Presentation.Forms.Careers
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private async void btnDelete_Click(object sender, EventArgs e)
         {
             if (dgvCareers.CurrentRow != null)
             {
                 CareerDTO selectedCareer = (CareerDTO)dgvCareers.CurrentRow.DataBoundItem;
                 Guid careerId = selectedCareer.Id;
 
-                using (var confirmDeleteForm = new ConfirmDeleteCareerform(_mediator, careerId))
+                var confirmResult = MessageBox.Show(
+                    "¿Está seguro de que desea eliminar esta carrera?",
+                    "Confirmar eliminación",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+
+                if (confirmResult == DialogResult.Yes)
                 {
-                    if (confirmDeleteForm.ShowDialog() == DialogResult.OK)
+                    var result = await _mediator.Send(new DeleteCareerCommand(careerId));
+
+                    if (result.IsSuccess)
                     {
+                        MessageBox.Show(
+                            "Carrera eliminada exitosamente.",
+                            "Éxito",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information
+                        );
                         Refresh();
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            "Error al eliminar la carrera: " + result.Errors[0].Message,
+                            "Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        );
                     }
                 }
             }
             else
             {
-                MessageBox.Show("Por favor, seleccione una carrera para eliminar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    "Por favor, seleccione una carrera para eliminar.",
+                    "Advertencia",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
             }
         }
     }

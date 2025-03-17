@@ -6,6 +6,7 @@ using ITS.BiblioAccess.Infrastructure;
 using ITS.BiblioAccess.Presentation.Forms;
 using ITS.BiblioAccess.Presentation.Forms.Careers;
 using ITS.BiblioAccess.Presentation.Forms.SystemConfigurations;
+using ITS.BiblioAccess.Presentation.Forms.EntryRecors;
 
 
 namespace ITS.BiblioAccess.Presentation;
@@ -28,5 +29,6 @@ public static class Startup
         services.AddTransient<CareersForm>();
         services.AddTransient<SystemConfigurationForm>();
         services.AddTransient<EditCareerForm>();
+        services.AddTransient<EntryRecordForm>();
     }
 }

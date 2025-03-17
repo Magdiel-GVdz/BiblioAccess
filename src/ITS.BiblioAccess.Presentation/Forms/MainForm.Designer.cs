@@ -30,13 +30,14 @@
         {
             btnCareers = new Button();
             btnConfig = new Button();
+            btnEntryRecords = new Button();
             SuspendLayout();
             // 
             // btnCareers
             // 
-            btnCareers.Location = new Point(231, 24);
+            btnCareers.Location = new Point(64, 42);
             btnCareers.Name = "btnCareers";
-            btnCareers.Size = new Size(97, 23);
+            btnCareers.Size = new Size(117, 23);
             btnCareers.TabIndex = 0;
             btnCareers.Text = "Carreras";
             btnCareers.UseVisualStyleBackColor = true;
@@ -44,22 +45,34 @@
             // 
             // btnConfig
             // 
-            btnConfig.Location = new Point(231, 53);
+            btnConfig.Location = new Point(64, 71);
             btnConfig.Name = "btnConfig";
-            btnConfig.Size = new Size(97, 23);
+            btnConfig.Size = new Size(117, 23);
             btnConfig.TabIndex = 1;
             btnConfig.Text = "Configuracion";
             btnConfig.UseVisualStyleBackColor = true;
             btnConfig.Click += btnConfig_Click;
             // 
+            // btnEntryRecords
+            // 
+            btnEntryRecords.Location = new Point(64, 100);
+            btnEntryRecords.Name = "btnEntryRecords";
+            btnEntryRecords.Size = new Size(117, 23);
+            btnEntryRecords.TabIndex = 2;
+            btnEntryRecords.Text = "Registrar Ingresos";
+            btnEntryRecords.UseVisualStyleBackColor = true;
+            btnEntryRecords.Click += btnEntryRecords_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(251, 179);
+            Controls.Add(btnEntryRecords);
             Controls.Add(btnConfig);
             Controls.Add(btnCareers);
             Name = "MainForm";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "BiblioAccess";
             ResumeLayout(false);
         }
@@ -68,5 +81,6 @@
 
         private Button btnCareers;
         private Button btnConfig;
+        private Button btnEntryRecords;
     }
 }

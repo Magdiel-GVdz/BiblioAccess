@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
     <PackageReference Include="FluentResults" Version="3.16.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.2" />
@@ -19,10 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ITS.BiblioAccess.Application\ITS.BiblioAccess.Application.csproj" />
     <ProjectReference Include="..\ITS.BiblioAccess.Infrastructure\ITS.BiblioAccess.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Forms\EntryRecors\" />
   </ItemGroup>
 
 </Project>
