@@ -46,9 +46,7 @@ public partial class EntryRecordForm : Form
     private async void RenderCareerButtons()
     {
         pnlButtons.Controls.Clear(); // Limpia el contenido anterior
-
-        // -- Configuramos 4 columnas y 1 fila inicial
-        pnlButtons.ColumnCount = 4;
+        pnlButtons.ColumnCount = 2; // 🔹 2 columnas: 1 para la gráfica, 1 para los botones
         pnlButtons.RowCount = 1;
         pnlButtons.AutoSize = true;
         pnlButtons.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -56,128 +54,35 @@ public partial class EntryRecordForm : Form
         pnlButtons.ColumnStyles.Clear();
         pnlButtons.RowStyles.Clear();
 
-        // -- Definimos las cuatro columnas (la primera queda “vacía”)
-        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F)); // Columna vacía
-        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F)); // 40% para la gráfica
+        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F)); // 60% para botones y contadores
 
-        // -- Agregamos el título en la primera fila, ocupando las 4 columnas
-        Label lblTitle = new Label
-        {
-            Text = "Registra tu entrada",
-            TextAlign = ContentAlignment.MiddleCenter,
-            Font = new Font("Arial", 16, FontStyle.Bold),
-            Dock = DockStyle.Top,
-            AutoSize = true,
-            Margin = new Padding(0, 10, 0, 20)
-        };
-        pnlButtons.Controls.Add(lblTitle, 0, 0);
-        pnlButtons.SetColumnSpan(lblTitle, 4);
-
-        // -- Contadores por género
-        TableLayoutPanel genderCounterPanel = new TableLayoutPanel
-        {
-            ColumnCount = 2,
-            RowCount = 1,
-            AutoSize = true,
-            Anchor = AnchorStyles.None,
-            Dock = DockStyle.None,
-            Padding = new Padding(0, 10, 0, 20),
-            Margin = new Padding(0, 0, 0, 10)
-        };
-        genderCounterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-        genderCounterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-
-        lblMaleCounter = new Label
-        {
-            Text = "Ingresos de hombres: 0",
-            TextAlign = ContentAlignment.MiddleCenter,
-            Font = new Font("Arial", 12, FontStyle.Bold),
-            AutoSize = true,
-            Anchor = AnchorStyles.None
-        };
-
-        lblFemaleCounter = new Label
-        {
-            Text = "Ingresos de mujeres: 0",
-            TextAlign = ContentAlignment.MiddleCenter,
-            Font = new Font("Arial", 12, FontStyle.Bold),
-            AutoSize = true,
-            Anchor = AnchorStyles.None
-        };
-
-        lblTotalCounter = new Label
-        {
-            Text = "Ingresos totales: 0",
-            TextAlign = ContentAlignment.MiddleCenter,
-            Font = new Font("Arial", 12, FontStyle.Bold),
-            AutoSize = true,
-            Anchor = AnchorStyles.None
-        };
-
-
-
-        genderCounterPanel.Controls.Add(lblMaleCounter, 0, 0);
-        genderCounterPanel.Controls.Add(lblFemaleCounter, 1, 0);
-
-        genderCounterPanel.RowCount = 2;
-        genderCounterPanel.Controls.Add(lblTotalCounter, 0, 1);
-        genderCounterPanel.SetColumnSpan(lblTotalCounter, 2);
-
-
-        // -- Lo añadimos en la segunda fila, abarcando 4 columnas
-        pnlButtons.RowCount++;
-        pnlButtons.Controls.Add(genderCounterPanel, 0, 1);
-        pnlButtons.SetColumnSpan(genderCounterPanel, 4);
-
-        // -- Actualizamos el contador
-        await UpdateEntryCounter();
-
-
-        // 1) Agregamos una nueva fila para la gráfica
-        pnlButtons.RowCount++;
-        pnlButtons.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        int chartRowIndex = pnlButtons.RowCount - 1;
-
-        // 2) Creamos el control Chart
+        // -- Panel para la gráfica
         Chart chartPie = new Chart
         {
             Dock = DockStyle.Fill
         };
-
-        // Configuramos el área de la gráfica
         ChartArea chartArea = new ChartArea("PieArea");
         chartPie.ChartAreas.Add(chartArea);
-
-        // Creamos la serie como Pie
         Series seriesPie = new Series("CareerPie")
         {
             ChartType = SeriesChartType.Pie
         };
-        // (Opcional) Mostrar las etiquetas en el interior
-        seriesPie["PieLabelStyle"] = "Outside"; // Mueve las etiquetas fuera del gráfico
-        seriesPie["OutsideLabelPlacement"] = "Right"; // Coloca las etiquetas a la derecha
-        seriesPie["PieLineColor"] = "Black"; // Dibuja una línea para conectar la etiqueta con la sección
+        seriesPie["PieLabelStyle"] = "Outside";
+        seriesPie["OutsideLabelPlacement"] = "Right";
+        seriesPie["PieLineColor"] = "Black";
+        chartPie.Series.Add(seriesPie);
 
-
-        // 3) Obtenemos los datos para la gráfica (ejemplo)
-        var dailyCareerCountResult = await _mediator.Send(
-            new GetDailyCareerCountQuery()
-        );
+        var dailyCareerCountResult = await _mediator.Send(new GetDailyCareerCountQuery());
 
         if (dailyCareerCountResult.IsSuccess)
         {
             var careerCounts = dailyCareerCountResult.Value;
-
-            // Limpiar la serie anterior antes de agregar datos nuevos
             seriesPie.Points.Clear();
-
             foreach (var item in careerCounts)
             {
                 int pointIndex = seriesPie.Points.AddXY(item.CareerName, item.Count);
-                seriesPie.Points[pointIndex].Label = $"{item.CareerName} ({item.Count})"; // ✅ Solución
-
+                seriesPie.Points[pointIndex].Label = $"{item.CareerName} ({item.Count})";
             }
         }
         else
@@ -186,124 +91,151 @@ public partial class EntryRecordForm : Form
                             "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        pnlButtons.Controls.Add(chartPie, 0, 0); // 📌 Agregar la gráfica en la primera columna
 
+        // -- Panel derecho para contadores y botones
+        TableLayoutPanel rightPanel = new TableLayoutPanel
+        {
+            ColumnCount = 1,
+            RowCount = 2,
+            AutoSize = true,
+            Dock = DockStyle.Fill
+        };
 
-        // Agregamos la serie al chart
-        chartPie.Series.Add(seriesPie);
+        // -- Contadores de género
+        TableLayoutPanel genderCounterPanel = new TableLayoutPanel
+        {
+            ColumnCount = 3,
+            RowCount = 1,
+            AutoSize = true,
+            Anchor = AnchorStyles.None,
+            Dock = DockStyle.Top,
+            Padding = new Padding(0, 10, 0, 20)
+        };
 
-        // 4) Insertamos el Chart en columna 0, en la fila que acabamos de crear
-        pnlButtons.Controls.Add(chartPie, 0, chartRowIndex);
+        genderCounterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
+        genderCounterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
+        genderCounterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
 
+        lblMaleCounter = new Label
+        {
+            Text = "Ingresos de hombres: 0",
+            TextAlign = ContentAlignment.MiddleCenter,
+            Font = new Font("Arial", 12, FontStyle.Bold),
+            AutoSize = true
+        };
 
-        // -- Obtenemos las carreras
+        lblFemaleCounter = new Label
+        {
+            Text = "Ingresos de mujeres: 0",
+            TextAlign = ContentAlignment.MiddleCenter,
+            Font = new Font("Arial", 12, FontStyle.Bold),
+            AutoSize = true
+        };
+
+        lblTotalCounter = new Label
+        {
+            Text = "Ingresos totales: 0",
+            TextAlign = ContentAlignment.MiddleCenter,
+            Font = new Font("Arial", 12, FontStyle.Bold),
+            AutoSize = true
+        };
+
+        genderCounterPanel.Controls.Add(lblMaleCounter, 0, 0);
+        genderCounterPanel.Controls.Add(lblFemaleCounter, 1, 0);
+        genderCounterPanel.Controls.Add(lblTotalCounter, 2, 0);
+        rightPanel.Controls.Add(genderCounterPanel, 0, 0);
+
+        await UpdateEntryCounter();
+
+        // -- Panel para los botones de carreras
+        FlowLayoutPanel buttonPanel = new FlowLayoutPanel
+        {
+            FlowDirection = FlowDirection.LeftToRight,
+            AutoSize = true,
+            Dock = DockStyle.Top
+        };
+
         var result = await _mediator.Send(new GetAllActiveCareersQuery());
         if (!result.IsSuccess)
         {
             MessageBox.Show("Error al obtener las carreras.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
+
         List<Career> careers = result.Value;
 
-        // -- Aquí comenzamos en la fila 2 (ya usamos 0 para título y 1 para contadores)
-        int rowIndex = 2;
-
-        Size _buttonSize = new Size(90, 35);
-        for (int i = 0; i < careers.Count; i += 3)
+        foreach (var career in careers)
         {
-            pnlButtons.RowCount++;
-            pnlButtons.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-
-            for (int j = 1; j <= 3; j++)
+            TableLayoutPanel panelContainer = new TableLayoutPanel
             {
-                if (i + (j - 1) >= careers.Count) break;
+                ColumnCount = 1,
+                RowCount = 2,
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                Padding = new Padding(2),
+                Margin = new Padding(5)
+            };
 
-                Career career = careers[i + (j - 1)];
+            Label lblCareer = new Label
+            {
+                Text = career.Name.Value,
+                TextAlign = ContentAlignment.MiddleCenter,
+                AutoSize = true,
+                Font = new Font("Arial", 10, FontStyle.Bold)
+            };
 
-                // -- Crea un panel de 2 filas (label y botones).
-                var panelContainer = new TableLayoutPanel
-                {
-                    ColumnCount = 1,
-                    RowCount = 2,
-                    AutoSize = true,
-                    Dock = DockStyle.Fill,
+            FlowLayoutPanel flowButtons = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.LeftToRight,
+                AutoSize = true
+            };
 
-                    // Ajusta estos para reducir espacio:
-                    Padding = new Padding(2),
-                    Margin = new Padding(5),
+            Button btnMale = new Button
+            {
+                Text = "Hombre",
+                Tag = Tuple.Create(career.CareerId, "Male"),
+                Width = 100,
+                Height = 40,
+                Margin = new Padding(5)
+            };
+            btnMale.Click += RegisterButton_Click;
 
-                    // Fila 0 -> Label, fila 1 -> FlowLayoutPanel
-                };
-                panelContainer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                panelContainer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            Button btnFemale = new Button
+            {
+                Text = "Mujer",
+                Tag = Tuple.Create(career.CareerId, "Female"),
+                Width = 100,
+                Height = 40,
+                Margin = new Padding(5)
+            };
+            btnFemale.Click += RegisterButton_Click;
 
-                // -- Label con el nombre de la carrera
-                Label lblCareer = new Label
-                {
-                    Text = career.Name.Value,
-                    TextAlign = ContentAlignment.MiddleCenter,
-                    AutoSize = true,
-                    Font = new Font("Arial", 10, FontStyle.Bold),
-                    Margin = new Padding(0, 0, 0, 2) // margen inferior pequeño
-                };
+            flowButtons.Controls.Add(btnMale);
+            flowButtons.Controls.Add(btnFemale);
 
-                // -- FlowLayoutPanel para los 2 botones en una fila
-                FlowLayoutPanel flowButtons = new FlowLayoutPanel
-                {
-                    FlowDirection = FlowDirection.LeftToRight,
-                    AutoSize = true,
-                    Margin = new Padding(0)
-                };
+            panelContainer.Controls.Add(lblCareer, 0, 0);
+            panelContainer.Controls.Add(flowButtons, 0, 1);
 
-                // -- Botón 'Hombre'
-                Button btnMale = new Button
-                {
-                    Text = "Hombre",
-                    Tag = Tuple.Create(career.CareerId, "Male"),
-                    Width = 150,
-                    Height = 40,
-                    Margin = new Padding(0, 0, 5, 0) // margen derecho pequeño 
-                };
-                btnMale.Click += RegisterButton_Click;
-
-                // -- Botón 'Mujer'
-                Button btnFemale = new Button
-                {
-                    Text = "Mujer",
-                    Tag = Tuple.Create(career.CareerId, "Female"),
-                    Width = 150,
-                    Height = 40,
-                    Margin = new Padding(0)
-                };
-                btnFemale.Click += RegisterButton_Click;
-
-                // -- Agrega los dos botones al flowLayout
-                flowButtons.Controls.Add(btnMale);
-                flowButtons.Controls.Add(btnFemale);
-
-                // -- Añade Label (fila 0) y Flow (fila 1) al panel contenedor
-                panelContainer.Controls.Add(lblCareer, 0, 0);
-                panelContainer.Controls.Add(flowButtons, 0, 1);
-
-                // -- Lo ubicamos en la tabla principal, columna j (1..3)
-                pnlButtons.Controls.Add(panelContainer, j, pnlButtons.RowCount - 1);
-            }
+            buttonPanel.Controls.Add(panelContainer);
         }
 
+        rightPanel.Controls.Add(buttonPanel, 0, 1);
+
+        pnlButtons.Controls.Add(rightPanel, 1, 0); // 📌 Agregar panel derecho en la segunda columna
 
 
-        // -- Sección para “Otros”
+
+
+
+        // -- Sección para "Otros" (Docente, Administrativo, Visitante)
         TableLayoutPanel externalTablePanel = new TableLayoutPanel
         {
             ColumnCount = 1,
             RowCount = 2,
             AutoSize = true,
-            Anchor = AnchorStyles.None,
-            Location = new Point(
-                (this.ClientSize.Width - 500) / 2,
-                pnlButtons.Bottom + 50
-            ),
-            Padding = new Padding(0, 10, 0, 0),
-            BackColor = Color.Transparent
+            Dock = DockStyle.Top,
+            Padding = new Padding(0, 10, 0, 0)
         };
 
         Label lblOtros = new Label
@@ -311,52 +243,34 @@ public partial class EntryRecordForm : Form
             Text = "Otros",
             TextAlign = ContentAlignment.MiddleCenter,
             Font = new Font("Arial", 12, FontStyle.Bold),
-            AutoSize = true,
-            Dock = DockStyle.Fill,
-            Margin = new Padding(0, 0, 0, 10)
+            AutoSize = true
         };
 
-        FlowLayoutPanel buttonPanel = new FlowLayoutPanel
+        FlowLayoutPanel otherButtonPanel = new FlowLayoutPanel
         {
             FlowDirection = FlowDirection.LeftToRight,
-            AutoSize = true,
-            Anchor = AnchorStyles.None
+            AutoSize = true
         };
 
-        Button btnDocente = new Button
-        {
-            Text = "Docente",
-            Width = 150,
-            Height = 40
-            
-        };
+        Button btnDocente = new Button { Text = "Docente", Width = 150, Height = 40 };
         btnDocente.Click += (s, e) => RegisterGeneralEntry(UserType.Docent);
 
-        Button btnAdmin = new Button
-        {
-            Text = "Administrativo",
-            Width = 150,
-            Height = 40
-        };
+        Button btnAdmin = new Button { Text = "Administrativo", Width = 150, Height = 40 };
         btnAdmin.Click += (s, e) => RegisterGeneralEntry(UserType.Admin);
 
-        Button btnVisitante = new Button
-        {
-            Text = "Visitante",
-            Width = 150,
-            Height = 40
-        };
+        Button btnVisitante = new Button { Text = "Visitante", Width = 150, Height = 40 };
         btnVisitante.Click += (s, e) => RegisterGeneralEntry(UserType.Visitor);
 
-        buttonPanel.Controls.Add(btnDocente);
-        buttonPanel.Controls.Add(btnAdmin);
-        buttonPanel.Controls.Add(btnVisitante);
+        otherButtonPanel.Controls.Add(btnDocente);
+        otherButtonPanel.Controls.Add(btnAdmin);
+        otherButtonPanel.Controls.Add(btnVisitante);
 
         externalTablePanel.Controls.Add(lblOtros, 0, 0);
-        externalTablePanel.Controls.Add(buttonPanel, 0, 1);
+        externalTablePanel.Controls.Add(otherButtonPanel, 0, 1);
 
-        // -- Agregamos este panel “externo” directamente al formulario (o podrías también meterlo en pnlButtons)
-        this.Controls.Add(externalTablePanel);
+        rightPanel.Controls.Add(externalTablePanel, 0, 2); // 📌 Agregar la sección "Otros" debajo de los botones de carrera
+
+        pnlButtons.Controls.Add(rightPanel, 1, 0); // 📌 Agregar el panel derecho en la segunda columna
     }
 
     private async Task UpdateChart()
