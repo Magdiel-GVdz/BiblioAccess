@@ -24,8 +24,13 @@ public class GetDailyEntryRecordsUseCase
 
         public async Task<Result<List<EntryRecord>>> Handle(GetDailyEntryRecordsQuery request, CancellationToken cancellationToken)
         {
-            DateTime today = DateTime.UtcNow.Date; // Asegura que se use la fecha del día actual en UTC
-            return await _entryRecordRepository.GetRecordsByDateAsync(today, cancellationToken);
+            // Obtener la zona horaria de Ciudad de México
+            TimeZoneInfo mexicoTimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
+
+            // Convertir UTC a la hora de México y obtener solo la fecha (sin la hora)
+            DateTime todayMexico = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, mexicoTimeZone).Date;
+
+            return await _entryRecordRepository.GetRecordsByDateAsync(todayMexico, cancellationToken);
         }
     }
 }

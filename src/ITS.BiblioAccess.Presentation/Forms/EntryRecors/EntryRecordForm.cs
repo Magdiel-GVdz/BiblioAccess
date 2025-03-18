@@ -1,10 +1,13 @@
 ﻿using ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries;
+using System.Windows.Forms.DataVisualization.Charting;
 using ITS.BiblioAccess.Domain.Entities;
 using ITS.BiblioAccess.Domain.ValueObjects;
 using MediatR;
 using System.Runtime.Versioning;
 using static ITS.BiblioAccess.Application.UseCases.Careers.Queries.GetAllActiveCareersUseCase;
 using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Commands.RegisterEntryUseCase;
+using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries.GetDailyCareerCountUseCase;
+using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries.GetDailyGenderCountUseCase;
 
 namespace ITS.BiblioAccess.Presentation.Forms.EntryRecors;
 
@@ -16,6 +19,7 @@ public partial class EntryRecordForm : Form
 
     private Label lblMaleCounter;
     private Label lblFemaleCounter;
+    private Label lblTotalCounter;
 
     public EntryRecordForm(IServiceProvider serviceProvider, IMediator mediator)
     {
@@ -42,7 +46,9 @@ public partial class EntryRecordForm : Form
     private async void RenderCareerButtons()
     {
         pnlButtons.Controls.Clear(); // Limpia el contenido anterior
-        pnlButtons.ColumnCount = 3;
+
+        // -- Configuramos 4 columnas y 1 fila inicial
+        pnlButtons.ColumnCount = 4;
         pnlButtons.RowCount = 1;
         pnlButtons.AutoSize = true;
         pnlButtons.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -50,12 +56,13 @@ public partial class EntryRecordForm : Form
         pnlButtons.ColumnStyles.Clear();
         pnlButtons.RowStyles.Clear();
 
-        // Definir las tres columnas con el mismo tamaño
-        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
-        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
-        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
+        // -- Definimos las cuatro columnas (la primera queda “vacía”)
+        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F)); // Columna vacía
+        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
 
-        // 📌 Agregar título en la cima
+        // -- Agregamos el título en la primera fila, ocupando las 4 columnas
         Label lblTitle = new Label
         {
             Text = "Registra tu entrada",
@@ -66,25 +73,22 @@ public partial class EntryRecordForm : Form
             Margin = new Padding(0, 10, 0, 20)
         };
         pnlButtons.Controls.Add(lblTitle, 0, 0);
-        pnlButtons.SetColumnSpan(lblTitle, 3);
+        pnlButtons.SetColumnSpan(lblTitle, 4);
 
-        // 📌 Contenedor para los contadores (centrado correctamente)
+        // -- Contadores por género
         TableLayoutPanel genderCounterPanel = new TableLayoutPanel
         {
             ColumnCount = 2,
             RowCount = 1,
             AutoSize = true,
             Anchor = AnchorStyles.None,
-            Dock = DockStyle.None,  // 🚀 Evita que se expanda de más
+            Dock = DockStyle.None,
             Padding = new Padding(0, 10, 0, 20),
             Margin = new Padding(0, 0, 0, 10)
         };
-
-        // Definir las dos columnas con igual tamaño
         genderCounterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
         genderCounterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 
-        // 📌 Contadores de ingresos por género
         lblMaleCounter = new Label
         {
             Text = "Ingresos de hombres: 0",
@@ -103,106 +107,191 @@ public partial class EntryRecordForm : Form
             Anchor = AnchorStyles.None
         };
 
-        // 📌 Agregar los labels al `TableLayoutPanel`
+        lblTotalCounter = new Label
+        {
+            Text = "Ingresos totales: 0",
+            TextAlign = ContentAlignment.MiddleCenter,
+            Font = new Font("Arial", 12, FontStyle.Bold),
+            AutoSize = true,
+            Anchor = AnchorStyles.None
+        };
+
+
+
         genderCounterPanel.Controls.Add(lblMaleCounter, 0, 0);
         genderCounterPanel.Controls.Add(lblFemaleCounter, 1, 0);
 
-        // 📌 Ubicar el panel en el centro de la pantalla
-        genderCounterPanel.Location = new System.Drawing.Point(
-            (this.ClientSize.Width - genderCounterPanel.Width) / 2,
-            50 // Puedes ajustar este valor para moverlo más arriba o abajo
-        );
+        genderCounterPanel.RowCount = 2;
+        genderCounterPanel.Controls.Add(lblTotalCounter, 0, 1);
+        genderCounterPanel.SetColumnSpan(lblTotalCounter, 2);
 
-        // 📌 Agregar el contenedor de los contadores al panel principal
+
+        // -- Lo añadimos en la segunda fila, abarcando 4 columnas
+        pnlButtons.RowCount++;
         pnlButtons.Controls.Add(genderCounterPanel, 0, 1);
-        pnlButtons.SetColumnSpan(genderCounterPanel, 3);
+        pnlButtons.SetColumnSpan(genderCounterPanel, 4);
 
-
+        // -- Actualizamos el contador
         await UpdateEntryCounter();
 
-        var result = await _mediator.Send(new GetAllActiveCareersQuery());
 
+        // 1) Agregamos una nueva fila para la gráfica
+        pnlButtons.RowCount++;
+        pnlButtons.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        int chartRowIndex = pnlButtons.RowCount - 1;
+
+        // 2) Creamos el control Chart
+        Chart chartPie = new Chart
+        {
+            Dock = DockStyle.Fill
+        };
+
+        // Configuramos el área de la gráfica
+        ChartArea chartArea = new ChartArea("PieArea");
+        chartPie.ChartAreas.Add(chartArea);
+
+        // Creamos la serie como Pie
+        Series seriesPie = new Series("CareerPie")
+        {
+            ChartType = SeriesChartType.Pie
+        };
+        // (Opcional) Mostrar las etiquetas en el interior
+        seriesPie["PieLabelStyle"] = "Outside"; // Mueve las etiquetas fuera del gráfico
+        seriesPie["OutsideLabelPlacement"] = "Right"; // Coloca las etiquetas a la derecha
+        seriesPie["PieLineColor"] = "Black"; // Dibuja una línea para conectar la etiqueta con la sección
+
+
+        // 3) Obtenemos los datos para la gráfica (ejemplo)
+        var dailyCareerCountResult = await _mediator.Send(
+            new GetDailyCareerCountQuery()
+        );
+
+        if (dailyCareerCountResult.IsSuccess)
+        {
+            var careerCounts = dailyCareerCountResult.Value;
+
+            // Limpiar la serie anterior antes de agregar datos nuevos
+            seriesPie.Points.Clear();
+
+            foreach (var item in careerCounts)
+            {
+                int pointIndex = seriesPie.Points.AddXY(item.CareerName, item.Count);
+                seriesPie.Points[pointIndex].Label = $"{item.CareerName} ({item.Count})"; // ✅ Solución
+
+            }
+        }
+        else
+        {
+            MessageBox.Show($"Error al obtener conteos por carrera: {string.Join(", ", dailyCareerCountResult.Errors)}",
+                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+
+
+        // Agregamos la serie al chart
+        chartPie.Series.Add(seriesPie);
+
+        // 4) Insertamos el Chart en columna 0, en la fila que acabamos de crear
+        pnlButtons.Controls.Add(chartPie, 0, chartRowIndex);
+
+
+        // -- Obtenemos las carreras
+        var result = await _mediator.Send(new GetAllActiveCareersQuery());
         if (!result.IsSuccess)
         {
             MessageBox.Show("Error al obtener las carreras.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
-
         List<Career> careers = result.Value;
+
+        // -- Aquí comenzamos en la fila 2 (ya usamos 0 para título y 1 para contadores)
         int rowIndex = 2;
 
+        Size _buttonSize = new Size(90, 35);
         for (int i = 0; i < careers.Count; i += 3)
         {
             pnlButtons.RowCount++;
             pnlButtons.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            for (int j = 0; j < 3; j++)
+            for (int j = 1; j <= 3; j++)
             {
-                if (i + j >= careers.Count) break;
+                if (i + (j - 1) >= careers.Count) break;
 
-                Career career = careers[i + j];
+                Career career = careers[i + (j - 1)];
 
+                // -- Crea un panel de 2 filas (label y botones).
                 var panelContainer = new TableLayoutPanel
                 {
                     ColumnCount = 1,
                     RowCount = 2,
                     AutoSize = true,
-                    Anchor = AnchorStyles.None,
                     Dock = DockStyle.Fill,
-                    Padding = new Padding(10),
-                    Margin = new Padding(10)
+
+                    // Ajusta estos para reducir espacio:
+                    Padding = new Padding(2),
+                    Margin = new Padding(5),
+
+                    // Fila 0 -> Label, fila 1 -> FlowLayoutPanel
                 };
-
                 panelContainer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                 panelContainer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
+                // -- Label con el nombre de la carrera
                 Label lblCareer = new Label
                 {
                     Text = career.Name.Value,
                     TextAlign = ContentAlignment.MiddleCenter,
-                    Dock = DockStyle.Top,
-                    Font = new Font("Arial", 12, FontStyle.Bold),
-                    AutoSize = true
+                    AutoSize = true,
+                    Font = new Font("Arial", 10, FontStyle.Bold),
+                    Margin = new Padding(0, 0, 0, 2) // margen inferior pequeño
                 };
 
+                // -- FlowLayoutPanel para los 2 botones en una fila
+                FlowLayoutPanel flowButtons = new FlowLayoutPanel
+                {
+                    FlowDirection = FlowDirection.LeftToRight,
+                    AutoSize = true,
+                    Margin = new Padding(0)
+                };
+
+                // -- Botón 'Hombre'
                 Button btnMale = new Button
                 {
                     Text = "Hombre",
                     Tag = Tuple.Create(career.CareerId, "Male"),
                     Width = 150,
-                    Height = 40
+                    Height = 40,
+                    Margin = new Padding(0, 0, 5, 0) // margen derecho pequeño 
                 };
                 btnMale.Click += RegisterButton_Click;
 
+                // -- Botón 'Mujer'
                 Button btnFemale = new Button
                 {
                     Text = "Mujer",
                     Tag = Tuple.Create(career.CareerId, "Female"),
                     Width = 150,
-                    Height = 40
+                    Height = 40,
+                    Margin = new Padding(0)
                 };
                 btnFemale.Click += RegisterButton_Click;
 
-                FlowLayoutPanel careerButtonPanel = new FlowLayoutPanel
-                {
-                    FlowDirection = FlowDirection.LeftToRight,
-                    Dock = DockStyle.Fill,
-                    AutoSize = true,
-                    Anchor = AnchorStyles.None
-                };
+                // -- Agrega los dos botones al flowLayout
+                flowButtons.Controls.Add(btnMale);
+                flowButtons.Controls.Add(btnFemale);
 
-                careerButtonPanel.Controls.Add(btnMale);
-                careerButtonPanel.Controls.Add(btnFemale);
-
+                // -- Añade Label (fila 0) y Flow (fila 1) al panel contenedor
                 panelContainer.Controls.Add(lblCareer, 0, 0);
-                panelContainer.Controls.Add(careerButtonPanel, 0, 1);
+                panelContainer.Controls.Add(flowButtons, 0, 1);
 
-                pnlButtons.Controls.Add(panelContainer, j, rowIndex);
+                // -- Lo ubicamos en la tabla principal, columna j (1..3)
+                pnlButtons.Controls.Add(panelContainer, j, pnlButtons.RowCount - 1);
             }
-
-            rowIndex++;
         }
 
+
+
+        // -- Sección para “Otros”
         TableLayoutPanel externalTablePanel = new TableLayoutPanel
         {
             ColumnCount = 1,
@@ -210,9 +299,9 @@ public partial class EntryRecordForm : Form
             AutoSize = true,
             Anchor = AnchorStyles.None,
             Location = new Point(
-            (this.ClientSize.Width - 500) / 2,
-            pnlButtons.Bottom + 50
-        ),
+                (this.ClientSize.Width - 500) / 2,
+                pnlButtons.Bottom + 50
+            ),
             Padding = new Padding(0, 10, 0, 0),
             BackColor = Color.Transparent
         };
@@ -239,6 +328,7 @@ public partial class EntryRecordForm : Form
             Text = "Docente",
             Width = 150,
             Height = 40
+            
         };
         btnDocente.Click += (s, e) => RegisterGeneralEntry(UserType.Docent);
 
@@ -265,24 +355,77 @@ public partial class EntryRecordForm : Form
         externalTablePanel.Controls.Add(lblOtros, 0, 0);
         externalTablePanel.Controls.Add(buttonPanel, 0, 1);
 
+        // -- Agregamos este panel “externo” directamente al formulario (o podrías también meterlo en pnlButtons)
         this.Controls.Add(externalTablePanel);
     }
 
+    private async Task UpdateChart()
+    {
+        var dailyCareerCountResult = await _mediator.Send(
+            new GetDailyCareerCountQuery()
+        );
+
+        if (dailyCareerCountResult.IsSuccess)
+        {
+            var careerCounts = dailyCareerCountResult.Value;
+
+            // Buscar la gráfica en los controles
+            foreach (Control control in pnlButtons.Controls)
+            {
+                if (control is Chart chart)
+                {
+                    Series seriesPie = chart.Series["CareerPie"];
+                    seriesPie.Points.Clear();
+
+                    foreach (var item in careerCounts)
+                    {
+                        int pointIndex = seriesPie.Points.AddXY(item.CareerName, item.Count);
+                        seriesPie.Points[pointIndex].Label = $"{item.CareerName} ({item.Count})";
+                    }
+
+                    return; // Terminar la función después de actualizar la gráfica
+                }
+            }
+        }
+        else
+        {
+            MessageBox.Show($"Error al obtener conteos por carrera: {string.Join(", ", dailyCareerCountResult.Errors)}",
+                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+
     private async Task UpdateEntryCounter()
     {
-        var result = await _mediator.Send(new GetDailyGenderCountUseCase.GetDailyGenderCountQuery(DateTime.UtcNow.Date));
+        var result = await _mediator.Send(new GetDailyGenderCountQuery());
 
         if (result.IsSuccess)
         {
             int maleCount = result.Value.MaleCount;
             int femaleCount = result.Value.FemaleCount;
+            int totalCount = maleCount + femaleCount;
 
-            lblMaleCounter.Text = $"Ingresos de hombres: {maleCount}";
-            lblFemaleCounter.Text = $"Ingresos de mujeres: {femaleCount}";
+            // ✅ Forzar actualización en el hilo principal de la UI
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() =>
+                {
+                    lblMaleCounter.Text = $"Ingresos de hombres: {maleCount}";
+                    lblFemaleCounter.Text = $"Ingresos de mujeres: {femaleCount}";
+                    lblTotalCounter.Text = $"Ingresos totales: {totalCount}";
+                }));
+            }
+            else
+            {
+                lblMaleCounter.Text = $"Ingresos de hombres: {maleCount}";
+                lblFemaleCounter.Text = $"Ingresos de mujeres: {femaleCount}";
+                lblTotalCounter.Text = $"Ingresos totales: {totalCount}";
+            }
         }
         else
         {
-            MessageBox.Show($"Error al obtener el conteo de ingresos: {string.Join(", ", result.Errors)}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"Error al obtener el conteo de ingresos: {string.Join(", ", result.Errors)}",
+                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -318,7 +461,8 @@ public partial class EntryRecordForm : Form
             if (result.IsSuccess)
             {
                 MessageBox.Show($"Registro exitoso. ID de entrada: {result.Value}", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await UpdateEntryCounter(); // 📌 Se actualiza el contador después del registro
+                await UpdateEntryCounter(); // 📌 Se actualiza el contador
+                await UpdateChart(); // ✅ Se actualiza la gráfica
             }
             else
             {
@@ -326,6 +470,7 @@ public partial class EntryRecordForm : Form
             }
         }
     }
+
     private void panel1_Paint(object sender, PaintEventArgs e)
     {
 
