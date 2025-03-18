@@ -4,10 +4,14 @@ using ITS.BiblioAccess.Domain.Entities;
 using ITS.BiblioAccess.Domain.ValueObjects;
 using MediatR;
 using System.Runtime.Versioning;
+using WinFormsChart = System.Windows.Forms.DataVisualization.Charting;
 using static ITS.BiblioAccess.Application.UseCases.Careers.Queries.GetAllActiveCareersUseCase;
 using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Commands.RegisterEntryUseCase;
 using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries.GetDailyCareerCountUseCase;
 using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries.GetDailyGenderCountUseCase;
+using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
+using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries.GetDailyEntryRecordsUseCase;
+using ITS.BiblioAccess.Application.UseCases.Careers.Queries;
 
 namespace ITS.BiblioAccess.Presentation.Forms.EntryRecors;
 
@@ -20,6 +24,8 @@ public partial class EntryRecordForm : Form
     private Label lblMaleCounter;
     private Label lblFemaleCounter;
     private Label lblTotalCounter;
+    private Chart chartPie;
+    private Chart chartBar;
 
     public EntryRecordForm(IServiceProvider serviceProvider, IMediator mediator)
     {
@@ -38,9 +44,10 @@ public partial class EntryRecordForm : Form
     }
 
 
-    private void EntryRecordForm_Load(object sender, EventArgs e)
+    private async void EntryRecordForm_Load(object sender, EventArgs e)
     {
         RenderCareerButtons();
+        await UpdateChart();
     }
 
     private async void RenderCareerButtons()
@@ -57,13 +64,21 @@ public partial class EntryRecordForm : Form
         pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F)); // 40% para la gráfica
         pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F)); // 60% para botones y contadores
 
-        // -- Panel para la gráfica
-        Chart chartPie = new Chart
+        // -- Panel para contener ambas gráficas
+        TableLayoutPanel chartPanel = new TableLayoutPanel
         {
-            Dock = DockStyle.Fill
+            ColumnCount = 1,
+            RowCount = 2,
+            Dock = DockStyle.Fill,
+            AutoSize = true
         };
-        ChartArea chartArea = new ChartArea("PieArea");
-        chartPie.ChartAreas.Add(chartArea);
+        chartPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // 50% espacio para la gráfica de pastel
+        chartPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // 50% espacio para la gráfica de barras
+
+        chartPie = new Chart { Dock = DockStyle.Fill, Name = "chartPie" }; // ✅ Asigna a la variable de clase
+        System.Windows.Forms.DataVisualization.Charting.ChartArea chartAreaPie =
+            new System.Windows.Forms.DataVisualization.Charting.ChartArea("PieArea");
+        chartPie.ChartAreas.Add(chartAreaPie);
         Series seriesPie = new Series("CareerPie")
         {
             ChartType = SeriesChartType.Pie
@@ -73,25 +88,29 @@ public partial class EntryRecordForm : Form
         seriesPie["PieLineColor"] = "Black";
         chartPie.Series.Add(seriesPie);
 
-        var dailyCareerCountResult = await _mediator.Send(new GetDailyCareerCountQuery());
-
-        if (dailyCareerCountResult.IsSuccess)
+        // -- 📊 Gráfica de barras (nueva)
+        chartBar = new Chart { Dock = DockStyle.Fill, Name = "chartBar" }; // ✅ Asigna a la variable de clase
+        System.Windows.Forms.DataVisualization.Charting.ChartArea chartAreaBar =
+            new System.Windows.Forms.DataVisualization.Charting.ChartArea("BarArea");
+        chartBar.ChartAreas.Add(chartAreaBar);
+        Series seriesBar = new Series("CareerBar")
         {
-            var careerCounts = dailyCareerCountResult.Value;
-            seriesPie.Points.Clear();
-            foreach (var item in careerCounts)
-            {
-                int pointIndex = seriesPie.Points.AddXY(item.CareerName, item.Count);
-                seriesPie.Points[pointIndex].Label = $"{item.CareerName} ({item.Count})";
-            }
-        }
-        else
-        {
-            MessageBox.Show($"Error al obtener conteos por carrera: {string.Join(", ", dailyCareerCountResult.Errors)}",
-                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+            ChartType = SeriesChartType.Column
+        };
+        chartBar.Series.Add(seriesBar);
 
-        pnlButtons.Controls.Add(chartPie, 0, 0); // 📌 Agregar la gráfica en la primera columna
+        
+
+
+
+
+        // -- Agregar las gráficas al panel de gráficas
+        chartPanel.Controls.Add(chartPie, 0, 0);
+        chartPanel.Controls.Add(chartBar, 0, 1);
+
+        // 📌 Agregar el `chartPanel` a la primera columna del `pnlButtons`
+        pnlButtons.Controls.Add(chartPanel, 0, 0);
+
 
         // -- Panel derecho para contadores y botones
         TableLayoutPanel rightPanel = new TableLayoutPanel
@@ -275,36 +294,106 @@ public partial class EntryRecordForm : Form
 
     private async Task UpdateChart()
     {
-        var dailyCareerCountResult = await _mediator.Send(
-            new GetDailyCareerCountQuery()
-        );
-
-        if (dailyCareerCountResult.IsSuccess)
+        try
         {
-            var careerCounts = dailyCareerCountResult.Value;
+            var activeCareersResult = await _mediator.Send(new GetAllActiveCareersQuery());
 
-            // Buscar la gráfica en los controles
-            foreach (Control control in pnlButtons.Controls)
+            if (activeCareersResult.IsFailed || activeCareersResult.Value.Count == 0)
             {
-                if (control is Chart chart)
+                MessageBox.Show("No hay carreras activas para mostrar en la gráfica.",
+                                "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var activeCareers = activeCareersResult.Value;
+            var entryRecordsResult = await _mediator.Send(new GetDailyEntryRecordsQuery());
+
+            Dictionary<Guid, (string Name, int Count)> careerCounts = activeCareers.ToDictionary(
+                c => c.CareerId, c => (c.Name.Value, 0)
+            );
+
+            if (entryRecordsResult.IsSuccess)
+            {
+                foreach (var record in entryRecordsResult.Value)
                 {
-                    Series seriesPie = chart.Series["CareerPie"];
-                    seriesPie.Points.Clear();
-
-                    foreach (var item in careerCounts)
+                    if (record.CareerId.HasValue && careerCounts.ContainsKey(record.CareerId.Value))
                     {
-                        int pointIndex = seriesPie.Points.AddXY(item.CareerName, item.Count);
-                        seriesPie.Points[pointIndex].Label = $"{item.CareerName} ({item.Count})";
+                        var (name, count) = careerCounts[record.CareerId.Value];
+                        careerCounts[record.CareerId.Value] = (name, count + 1);
                     }
-
-                    return; // Terminar la función después de actualizar la gráfica
                 }
             }
+
+            // 🔹 Buscar los gráficos en la interfaz
+            Control[] controls = this.Controls.Find("chartPie", true);
+            if (controls.Length == 0 || !(controls[0] is Chart chartPie))
+            {
+                MessageBox.Show("El gráfico de pastel chartPie no fue encontrado.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            controls = this.Controls.Find("chartBar", true);
+            if (controls.Length == 0 || !(controls[0] is Chart chartBar))
+            {
+                MessageBox.Show("El gráfico de barras chartBar no fue encontrado.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // 🔹 Configuración del gráfico de pastel
+            chartPie.Series.Clear();
+            var seriesPie = new Series("CareerPie")
+            {
+                ChartType = SeriesChartType.Pie
+            };
+
+            // 📌 Mover etiquetas a la orilla
+            seriesPie["PieLabelStyle"] = "Outside";  // Etiquetas fuera del pastel
+            seriesPie["OutsideLabelPlacement"] = "Right";  // Ubicarlas a la derecha
+            seriesPie["PieLineColor"] = "Black";  // Dibujar líneas de conexión
+            
+            foreach (var career in careerCounts.Values)
+            {
+                seriesPie.Points.AddXY(career.Name, career.Count);
+            }
+
+            chartPie.Series.Add(seriesPie);
+
+            // 🔹 Configuración del gráfico de barras
+            chartBar.Series.Clear();
+            var seriesBar = new Series("CareerBar")
+            {
+                ChartType = SeriesChartType.Column
+            };
+
+
+            int maxValue = careerCounts.Values.Max(c => c.Count);
+
+            // 🔹 Configurar eje Y para que ajuste automáticamente la escala
+            chartBar.ChartAreas[0].AxisY.Minimum = 0;
+            chartBar.ChartAreas[0].AxisY.Maximum = maxValue + 2; // Agrega un pequeño margen para mejor visualización
+            chartBar.ChartAreas[0].AxisY.IntervalAutoMode = IntervalAutoMode.VariableCount;
+            chartBar.ChartAreas[0].RecalculateAxesScale();
+
+
+
+            int index = 0;
+            foreach (var career in careerCounts.Values)
+            {
+                seriesBar.Points.AddXY(index++, career.Count); // Usa un índice en lugar del nombre
+            }
+            chartBar.ChartAreas[0].AxisX.CustomLabels.Clear();
+            index = 0;
+            foreach (var career in careerCounts.Values)
+            {
+                chartBar.ChartAreas[0].AxisX.CustomLabels.Add(index - 0.5, index + 0.5, career.Name);
+                index++;
+            }
+
+            chartBar.Series.Add(seriesBar);
         }
-        else
+        catch (Exception ex)
         {
-            MessageBox.Show($"Error al obtener conteos por carrera: {string.Join(", ", dailyCareerCountResult.Errors)}",
-                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"Error al actualizar la gráfica: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

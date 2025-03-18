@@ -32,6 +32,7 @@ namespace ITS.BiblioAccess.Presentation.Forms.Careers
             if (result.IsSuccess)
             {
                 MessageBox.Show("Carrera añadida correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.DialogResult = DialogResult.OK;
                 this.Close(); // Cierra el formulario después de la inserción
             }
             else

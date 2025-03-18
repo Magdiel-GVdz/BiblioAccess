@@ -51,12 +51,14 @@ namespace ITS.BiblioAccess.Presentation
 
         static string GetOrCreateDatabasePath()
         {
-            string dbPath = _configuration["DatabaseSettings:DatabasePath"]!;
+            string dbPath = _configuration["DatabaseSettings:DatabasePath"];
 
-            // Si no está configurado, usar la ruta por defecto
+            // Si la configuración no tiene una ruta, usa la predeterminada
             if (string.IsNullOrWhiteSpace(dbPath))
             {
                 string defaultDirectory = "C:/BiblioAccess";
+
+                // Asegurar que la carpeta existe antes de usarla
                 if (!Directory.Exists(defaultDirectory))
                 {
                     Directory.CreateDirectory(defaultDirectory);
@@ -67,9 +69,28 @@ namespace ITS.BiblioAccess.Presentation
                 // Guardar la nueva configuración
                 SaveDatabasePath(dbPath);
             }
+            else
+            {
+                // Obtener la carpeta de la ruta configurada
+                string? directoryPath = Path.GetDirectoryName(dbPath);
+
+                // Asegurar que la carpeta existe antes de intentar usar el archivo
+                if (!string.IsNullOrWhiteSpace(directoryPath) && !Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+            }
+
+            // Verificar si el archivo de la base de datos existe, si no, SQLite lo creará con migraciones
+            if (!File.Exists(dbPath))
+            {
+                Console.WriteLine($"El archivo de la base de datos no existe, SQLite lo creará en: {dbPath}");
+            }
 
             return dbPath;
         }
+
+
 
         static void SaveDatabasePath(string dbPath)
         {

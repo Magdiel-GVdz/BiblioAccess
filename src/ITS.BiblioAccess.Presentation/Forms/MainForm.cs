@@ -26,7 +26,7 @@ namespace ITS.BiblioAccess.Presentation.Forms
             _serviceProvider = serviceProvider;
             _mediator = mediator;
             _careerRepository = careerRepository;
-            this.FormClosing += MainForm_FormClosing;
+            
 
             // Configurar el Timer para ejecución programada
             _timer = new System.Timers.Timer(60000); // Revisión cada 60 segundos

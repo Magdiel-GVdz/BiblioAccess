@@ -24,20 +24,20 @@ namespace ITS.BiblioAccess.Presentation.Forms.Careers
             _mediator = mediator;
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
+        private async void btnAdd_Click(object sender, EventArgs e)
         {
             using (var addCareerForm = _serviceProvider.GetRequiredService<AddCareerForm>())
             {
                 if (addCareerForm.ShowDialog() == DialogResult.OK)
                 {
-                    Refresh();
+                    await RefreshAsync();
                 }
             }
         }
 
-        private void CareersForm_Load(object sender, EventArgs e)
+        private async void CareersForm_Load(object sender, EventArgs e)
         {
-            Refresh();
+            await RefreshAsync();
         }
 
         public override void Refresh()
@@ -48,6 +48,21 @@ namespace ITS.BiblioAccess.Presentation.Forms.Careers
             {
                 List<Career> careers = result.Value;
                 List<CareerDTO> careerDTOs = careers.Select(CareerDTO.FromCareer).ToList();
+                dgvCareers.DataSource = null;
+                dgvCareers.DataSource = careerDTOs;
+                HideIdColumn();
+            }
+        }
+
+        public async Task RefreshAsync()
+        {
+            var result = await _mediator.Send(new GetAllCareersUseCaseQuery());
+
+            if (result.IsSuccess)
+            {
+                List<Career> careers = result.Value;
+                List<CareerDTO> careerDTOs = careers.Select(CareerDTO.FromCareer).ToList();
+                dgvCareers.DataSource = null; // Limpiar primero para forzar la actualización
                 dgvCareers.DataSource = careerDTOs;
                 HideIdColumn();
             }
@@ -61,7 +76,7 @@ namespace ITS.BiblioAccess.Presentation.Forms.Careers
             }
         }
 
-        private void btnEdit_Click(object sender, EventArgs e)
+        private async void btnEdit_Click(object sender, EventArgs e)
         {
             if (dgvCareers.CurrentRow != null)
             {
@@ -73,7 +88,7 @@ namespace ITS.BiblioAccess.Presentation.Forms.Careers
 
                     if (editCareerForm.ShowDialog() == DialogResult.OK)
                     {
-                        Refresh();
+                        await RefreshAsync();
                     }
                 }
             }
@@ -109,7 +124,7 @@ namespace ITS.BiblioAccess.Presentation.Forms.Careers
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Information
                         );
-                        Refresh();
+                        await RefreshAsync();
                     }
                     else
                     {
