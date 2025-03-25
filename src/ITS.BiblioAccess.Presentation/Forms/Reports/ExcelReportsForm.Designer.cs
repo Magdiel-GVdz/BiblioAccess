@@ -97,7 +97,7 @@
             label4.Name = "label4";
             label4.Size = new Size(71, 15);
             label4.TabIndex = 7;
-            label4.Text = "Fecha de fin";
+            label4.Text = "Fecha de fín";
             // 
             // label5
             // 

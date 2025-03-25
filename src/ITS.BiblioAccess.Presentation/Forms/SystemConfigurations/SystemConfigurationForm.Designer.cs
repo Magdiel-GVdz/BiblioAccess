@@ -75,7 +75,7 @@
             MaximizeBox = false;
             Name = "SystemConfigurationForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Configuracion";
+            Text = "Configuración";
             Load += SystemConfigurationForm_Load;
             ResumeLayout(false);
             PerformLayout();

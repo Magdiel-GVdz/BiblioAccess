@@ -51,7 +51,7 @@
             btnConfig.Name = "btnConfig";
             btnConfig.Size = new Size(117, 23);
             btnConfig.TabIndex = 1;
-            btnConfig.Text = "Configuracion";
+            btnConfig.Text = "Configuración";
             btnConfig.UseVisualStyleBackColor = true;
             btnConfig.Click += btnConfig_Click;
             // 
