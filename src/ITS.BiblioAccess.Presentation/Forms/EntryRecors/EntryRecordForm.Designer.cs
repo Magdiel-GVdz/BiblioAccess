@@ -51,7 +51,6 @@
             ClientSize = new Size(800, 450);
             Controls.Add(pnlButtons);
             FormBorderStyle = FormBorderStyle.FixedSingle;
-            MaximizeBox = false;
             Name = "EntryRecordForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Registro de ingresos";

@@ -21,6 +21,8 @@ public partial class EntryRecordForm : Form
     private Label lblTotalCounter;
     private Chart chartPie;
     private Chart chartBar;
+    private Chart chartGenderBar;
+
 
     public EntryRecordForm(IServiceProvider serviceProvider, IMediator mediator)
     {
@@ -28,7 +30,7 @@ public partial class EntryRecordForm : Form
         _serviceProvider = serviceProvider;
         _mediator = mediator;
 
-        pnlButtons.Dock = DockStyle.None; // Evita que se estire
+        pnlButtons.Dock = DockStyle.Fill;
         pnlButtons.Anchor = AnchorStyles.None; // Permite centrarlo
         pnlButtons.AutoSize = true;
         pnlButtons.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -51,24 +53,23 @@ public partial class EntryRecordForm : Form
         pnlButtons.ColumnCount = 2; // 🔹 2 columnas: 1 para la gráfica, 1 para los botones
         pnlButtons.RowCount = 1;
         pnlButtons.AutoSize = true;
-        pnlButtons.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-        pnlButtons.Dock = DockStyle.Top;
+        pnlButtons.Dock = DockStyle.Fill;
         pnlButtons.ColumnStyles.Clear();
         pnlButtons.RowStyles.Clear();
 
-        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F)); // 40% para la gráfica
-        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F)); // 60% para botones y contadores
+        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F)); // 40% para la gráfica
+        pnlButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F)); // 60% para botones y contadores
 
         // -- Panel para contener ambas gráficas
         TableLayoutPanel chartPanel = new TableLayoutPanel
         {
             ColumnCount = 1,
-            RowCount = 2,
+            RowCount = 3,
             Dock = DockStyle.Fill,
-            AutoSize = true
         };
-        chartPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // 50% espacio para la gráfica de pastel
-        chartPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // 50% espacio para la gráfica de barras
+        chartPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 33F));
+        chartPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 33F));
+        chartPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 34F));
 
         chartPie = new Chart { Dock = DockStyle.Fill, Name = "chartPie" }; // ✅ Asigna a la variable de clase
         System.Windows.Forms.DataVisualization.Charting.ChartArea chartAreaPie =
@@ -94,14 +95,34 @@ public partial class EntryRecordForm : Form
         };
         chartBar.Series.Add(seriesBar);
 
+        chartGenderBar = new Chart { Dock = DockStyle.Fill, Name = "chartGenderBar" };
+        ChartArea chartAreaGender = new ChartArea("GenderBarArea");
+        chartGenderBar.ChartAreas.Add(chartAreaGender);
 
+        Series seriesMale = new Series("Male")
+        {
+            ChartType = SeriesChartType.Column,
+            Color = Color.SteelBlue
+        };
 
+        Series seriesFemale = new Series("Female")
+        {
+            ChartType = SeriesChartType.Column,
+            Color = Color.HotPink
+        };
 
+        chartGenderBar.Series.Add(seriesMale);
+        chartGenderBar.Series.Add(seriesFemale);
+
+        chartPie.Dock = DockStyle.Fill;
+        chartBar.Dock = DockStyle.Fill;
+        chartGenderBar.Dock = DockStyle.Fill;
 
 
         // -- Agregar las gráficas al panel de gráficas
         chartPanel.Controls.Add(chartPie, 0, 0);
         chartPanel.Controls.Add(chartBar, 0, 1);
+        chartPanel.Controls.Add(chartGenderBar, 0, 2);
 
         // 📌 Agregar el `chartPanel` a la primera columna del `pnlButtons`
         pnlButtons.Controls.Add(chartPanel, 0, 0);
@@ -224,8 +245,8 @@ public partial class EntryRecordForm : Form
             {
                 Text = "Hombre",
                 Tag = Tuple.Create(career.CareerId, "Male"),
-                Width = 100,
-                Height = 40,
+                Width = 120,
+                Height = 50,
                 Margin = new Padding(5)
             };
             btnMale.Click += RegisterButton_Click!;
@@ -234,8 +255,8 @@ public partial class EntryRecordForm : Form
             {
                 Text = "Mujer",
                 Tag = Tuple.Create(career.CareerId, "Female"),
-                Width = 100,
-                Height = 40,
+                Width = 120,
+                Height = 50,
                 Margin = new Padding(5)
             };
             btnFemale.Click += RegisterButton_Click;
@@ -277,13 +298,13 @@ public partial class EntryRecordForm : Form
             AutoSize = true
         };
 
-        Button btnDocente = new Button { Text = "Docente", Width = 150, Height = 40 };
+        Button btnDocente = new Button { Text = "Docente", Width = 150, Height = 50 };
         btnDocente.Click += (s, e) => RegisterGeneralEntry(UserType.Docent);
 
-        Button btnAdmin = new Button { Text = "Administrativo", Width = 150, Height = 40 };
+        Button btnAdmin = new Button { Text = "Administrativo", Width = 150, Height = 50 };
         btnAdmin.Click += (s, e) => RegisterGeneralEntry(UserType.Admin);
 
-        Button btnVisitante = new Button { Text = "Visitante", Width = 150, Height = 40 };
+        Button btnVisitante = new Button { Text = "Visitante", Width = 150, Height = 50 };
         btnVisitante.Click += (s, e) => RegisterGeneralEntry(UserType.Visitor);
 
         otherButtonPanel.Controls.Add(btnDocente);
@@ -314,9 +335,9 @@ public partial class EntryRecordForm : Form
             var activeCareers = activeCareersResult.Value;
             var entryRecordsResult = await _mediator.Send(new GetDailyEntryRecordsQuery());
 
-            Dictionary<Guid, (string Name, int Count)> careerCounts = activeCareers.ToDictionary(
-                c => c.CareerId, c => (c.Name.Value, 0)
-            );
+            Dictionary<Guid, (string Name, int Total, int MaleCount, int FemaleCount)> careerCounts =
+                activeCareers.ToDictionary(c => c.CareerId, c => (c.Name.Value, 0, 0, 0));
+
 
             if (entryRecordsResult.IsSuccess)
             {
@@ -324,9 +345,15 @@ public partial class EntryRecordForm : Form
                 {
                     if (record.CareerId.HasValue && careerCounts.ContainsKey(record.CareerId.Value))
                     {
-                        var (name, count) = careerCounts[record.CareerId.Value];
-                        careerCounts[record.CareerId.Value] = (name, count + 1);
+                        var (name, total, male, female) = careerCounts[record.CareerId.Value];
+                        if (record.Gender == Gender.Male)
+                            male++;
+                        else if (record.Gender == Gender.Female)
+                            female++;
+
+                        careerCounts[record.CareerId.Value] = (name, total + 1, male, female);
                     }
+
                 }
             }
 
@@ -359,7 +386,7 @@ public partial class EntryRecordForm : Form
 
             foreach (var career in careerCounts.Values)
             {
-                seriesPie.Points.AddXY(career.Name, career.Count);
+                seriesPie.Points.AddXY(career.Name, career.Total);
             }
 
             chartPie.Series.Add(seriesPie);
@@ -372,12 +399,13 @@ public partial class EntryRecordForm : Form
             };
 
 
-            int maxValue = careerCounts.Values.Max(c => c.Count);
+            int maxValue = careerCounts.Values.Max(c => c.Total);
 
             // 🔹 Configurar eje Y para que ajuste automáticamente la escala
             chartBar.ChartAreas[0].AxisY.Minimum = 0;
             chartBar.ChartAreas[0].AxisY.Maximum = maxValue + 2; // Agrega un pequeño margen para mejor visualización
             chartBar.ChartAreas[0].AxisY.IntervalAutoMode = IntervalAutoMode.VariableCount;
+            chartBar.ChartAreas[0].AxisY.LabelStyle.Format = "0";
             chartBar.ChartAreas[0].RecalculateAxesScale();
 
 
@@ -385,7 +413,7 @@ public partial class EntryRecordForm : Form
             int index = 0;
             foreach (var career in careerCounts.Values)
             {
-                seriesBar.Points.AddXY(index++, career.Count); // Usa un índice en lugar del nombre
+                seriesBar.Points.AddXY(index++, career.Total); // Usa un índice en lugar del nombre
             }
             chartBar.ChartAreas[0].AxisX.CustomLabels.Clear();
             index = 0;
@@ -396,6 +424,40 @@ public partial class EntryRecordForm : Form
             }
 
             chartBar.Series.Add(seriesBar);
+
+            Control[] genderChartControls = this.Controls.Find("chartGenderBar", true);
+            if (genderChartControls.Length == 0 || !(genderChartControls[0] is Chart chartGenderBar))
+            {
+                MessageBox.Show("El gráfico de barras por género no fue encontrado.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Limpiar
+            chartGenderBar.Series["Male"].Points.Clear();
+            chartGenderBar.Series["Female"].Points.Clear();
+            chartGenderBar.ChartAreas[0].AxisX.CustomLabels.Clear();
+
+            int genderIndex = 0;
+            maxValue = 0;
+
+            foreach (var career in careerCounts.Values)
+            {
+                chartGenderBar.Series["Male"].Points.AddXY(genderIndex, career.MaleCount);
+                chartGenderBar.Series["Female"].Points.AddXY(genderIndex, career.FemaleCount);
+
+                chartGenderBar.ChartAreas[0].AxisX.CustomLabels.Add(genderIndex - 0.5, genderIndex + 0.5, career.Name);
+
+                maxValue = Math.Max(maxValue, Math.Max(career.MaleCount, career.FemaleCount));
+                genderIndex++;
+            }
+
+            // Ajustar escala Y
+            chartGenderBar.ChartAreas[0].AxisY.Minimum = 0;
+            chartGenderBar.ChartAreas[0].AxisY.Maximum = maxValue + 2;
+            chartGenderBar.ChartAreas[0].AxisY.LabelStyle.Format = "0";
+            chartGenderBar.ChartAreas[0].RecalculateAxesScale();
+
+
         }
         catch (Exception ex)
         {
@@ -445,8 +507,8 @@ public partial class EntryRecordForm : Form
 
         if (result.IsSuccess)
         {
-            MessageBox.Show($"Registro exitoso. ID de entrada: {result.Value}", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            await UpdateEntryCounter(); // 📌 Se actualiza el contador después del registro
+        //    MessageBox.Show($"Registro exitoso. ID de entrada: {result.Value}", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //    await UpdateEntryCounter(); // 📌 Se actualiza el contador después del registro
         }
         else
         {
@@ -469,9 +531,9 @@ public partial class EntryRecordForm : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show($"Registro exitoso. ID de entrada: {result.Value}", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await UpdateEntryCounter(); // 📌 Se actualiza el contador
-                await UpdateChart(); // ✅ Se actualiza la gráfica
+                //MessageBox.Show($"Registro exitoso. ID de entrada: {result.Value}", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await UpdateEntryCounter(); 
+                await UpdateChart(); 
             }
             else
             {
