@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EntryRecordForm));
             pnlButtons = new TableLayoutPanel();
             SuspendLayout();
             // 
@@ -51,6 +52,7 @@
             ClientSize = new Size(800, 450);
             Controls.Add(pnlButtons);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "EntryRecordForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Registro de ingresos";

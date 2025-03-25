@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExcelReportsForm));
             btnExportByDateRange = new Button();
             dtpExportByDay = new DateTimePicker();
             label2 = new Label();
@@ -132,6 +133,7 @@
             Controls.Add(dtpExportByDay);
             Controls.Add(btnExportByDateRange);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             Name = "ExcelReportsForm";
             StartPosition = FormStartPosition.CenterScreen;

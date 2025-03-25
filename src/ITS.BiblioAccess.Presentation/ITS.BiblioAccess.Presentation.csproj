@@ -6,7 +6,23 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Title>BiblioAccess</Title>
+    <Authors>Magdiel GV</Authors>
+    <Product>BiblioAccess</Product>
+    <PackageIcon>book-bookmark-icon_34486.png</PackageIcon>
+    <ApplicationIcon>book-bookmark-icon_34486.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="book-bookmark-icon_34486.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Users\Magdiel.Guillermo\Downloads\book-bookmark-icon_34486.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.104.2" />

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SystemConfigurationForm));
             dtpExportHour = new DateTimePicker();
             btnAccept = new Button();
             label1 = new Label();
@@ -70,6 +71,7 @@
             Controls.Add(btnAccept);
             Controls.Add(dtpExportHour);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             Name = "SystemConfigurationForm";
             StartPosition = FormStartPosition.CenterScreen;

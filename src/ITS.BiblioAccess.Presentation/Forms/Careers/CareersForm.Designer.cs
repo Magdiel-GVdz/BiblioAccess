@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CareersForm));
             dgvCareers = new DataGridView();
             btnAdd = new Button();
             btnEdit = new Button();
@@ -87,6 +88,7 @@
             Controls.Add(btnAdd);
             Controls.Add(dgvCareers);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             Name = "CareersForm";
             StartPosition = FormStartPosition.CenterScreen;

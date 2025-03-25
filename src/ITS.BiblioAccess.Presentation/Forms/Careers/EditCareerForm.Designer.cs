@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditCareerForm));
             txtName = new TextBox();
             lblName = new Label();
             btnSave = new Button();
@@ -80,6 +81,7 @@
             Controls.Add(lblName);
             Controls.Add(btnSave);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             Name = "EditCareerForm";
             StartPosition = FormStartPosition.CenterScreen;

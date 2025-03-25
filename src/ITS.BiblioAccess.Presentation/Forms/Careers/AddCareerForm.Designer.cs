@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddCareerForm));
             btnAdd = new Button();
             lblName = new Label();
             txtName = new TextBox();
@@ -68,6 +69,7 @@
             Controls.Add(lblName);
             Controls.Add(btnAdd);
             FormBorderStyle = FormBorderStyle.FixedSingle;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             Name = "AddCareerForm";
             StartPosition = FormStartPosition.CenterScreen;
