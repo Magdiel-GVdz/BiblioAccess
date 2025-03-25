@@ -79,6 +79,8 @@
             Controls.Add(txtName);
             Controls.Add(lblName);
             Controls.Add(btnSave);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "EditCareerForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Editar carrera";

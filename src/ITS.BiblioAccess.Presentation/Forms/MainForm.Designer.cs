@@ -31,6 +31,7 @@
             btnCareers = new Button();
             btnConfig = new Button();
             btnEntryRecords = new Button();
+            btnExport = new Button();
             SuspendLayout();
             // 
             // btnCareers
@@ -63,17 +64,31 @@
             btnEntryRecords.UseVisualStyleBackColor = true;
             btnEntryRecords.Click += btnEntryRecords_Click;
             // 
+            // btnExport
+            // 
+            btnExport.Location = new Point(64, 129);
+            btnExport.Name = "btnExport";
+            btnExport.Size = new Size(117, 23);
+            btnExport.TabIndex = 3;
+            btnExport.Text = "Exportar a Excel";
+            btnExport.UseVisualStyleBackColor = true;
+            btnExport.Click += btnExport_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(251, 179);
+            ClientSize = new Size(245, 190);
+            Controls.Add(btnExport);
             Controls.Add(btnEntryRecords);
             Controls.Add(btnConfig);
             Controls.Add(btnCareers);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "BiblioAccess";
+            Load += MainForm_Load;
             ResumeLayout(false);
         }
 
@@ -82,5 +97,6 @@
         private Button btnCareers;
         private Button btnConfig;
         private Button btnEntryRecords;
+        private Button btnExport;
     }
 }

@@ -1,17 +1,12 @@
-﻿using ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries;
-using System.Windows.Forms.DataVisualization.Charting;
-using ITS.BiblioAccess.Domain.Entities;
+﻿using ITS.BiblioAccess.Domain.Entities;
 using ITS.BiblioAccess.Domain.ValueObjects;
 using MediatR;
 using System.Runtime.Versioning;
-using WinFormsChart = System.Windows.Forms.DataVisualization.Charting;
+using System.Windows.Forms.DataVisualization.Charting;
 using static ITS.BiblioAccess.Application.UseCases.Careers.Queries.GetAllActiveCareersUseCase;
 using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Commands.RegisterEntryUseCase;
-using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries.GetDailyCareerCountUseCase;
-using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries.GetDailyGenderCountUseCase;
-using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
 using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries.GetDailyEntryRecordsUseCase;
-using ITS.BiblioAccess.Application.UseCases.Careers.Queries;
+using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries.GetDailyGenderCountUseCase;
 
 namespace ITS.BiblioAccess.Presentation.Forms.EntryRecors;
 
@@ -99,7 +94,7 @@ public partial class EntryRecordForm : Form
         };
         chartBar.Series.Add(seriesBar);
 
-        
+
 
 
 
@@ -121,20 +116,38 @@ public partial class EntryRecordForm : Form
             Dock = DockStyle.Fill
         };
 
-        // -- Contadores de género
+        // -- Panel vertical para contener total arriba y los otros abajo
         TableLayoutPanel genderCounterPanel = new TableLayoutPanel
         {
-            ColumnCount = 3,
-            RowCount = 1,
+            ColumnCount = 1,
+            RowCount = 2,
             AutoSize = true,
             Anchor = AnchorStyles.None,
             Dock = DockStyle.Top,
             Padding = new Padding(0, 10, 0, 20)
         };
 
-        genderCounterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
-        genderCounterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
-        genderCounterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
+        // -- Label de total (una sola fila)
+        lblTotalCounter = new Label
+        {
+            Text = "Ingresos totales: 0",
+            TextAlign = ContentAlignment.MiddleCenter,
+            Font = new Font("Arial", 12, FontStyle.Bold),
+            AutoSize = true
+        };
+        genderCounterPanel.Controls.Add(lblTotalCounter, 0, 0);
+
+        // -- Subpanel horizontal para hombres y mujeres
+        TableLayoutPanel genderRowPanel = new TableLayoutPanel
+        {
+            ColumnCount = 2,
+            RowCount = 1,
+            AutoSize = true,
+            Dock = DockStyle.Fill
+        };
+
+        genderRowPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        genderRowPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 
         lblMaleCounter = new Label
         {
@@ -152,18 +165,15 @@ public partial class EntryRecordForm : Form
             AutoSize = true
         };
 
-        lblTotalCounter = new Label
-        {
-            Text = "Ingresos totales: 0",
-            TextAlign = ContentAlignment.MiddleCenter,
-            Font = new Font("Arial", 12, FontStyle.Bold),
-            AutoSize = true
-        };
+        genderRowPanel.Controls.Add(lblMaleCounter, 0, 0);
+        genderRowPanel.Controls.Add(lblFemaleCounter, 1, 0);
 
-        genderCounterPanel.Controls.Add(lblMaleCounter, 0, 0);
-        genderCounterPanel.Controls.Add(lblFemaleCounter, 1, 0);
-        genderCounterPanel.Controls.Add(lblTotalCounter, 2, 0);
+        // Agrega el subpanel al panel principal
+        genderCounterPanel.Controls.Add(genderRowPanel, 0, 1);
+
+        // Finalmente lo agregas al rightPanel
         rightPanel.Controls.Add(genderCounterPanel, 0, 0);
+
 
         await UpdateEntryCounter();
 
@@ -218,7 +228,7 @@ public partial class EntryRecordForm : Form
                 Height = 40,
                 Margin = new Padding(5)
             };
-            btnMale.Click += RegisterButton_Click;
+            btnMale.Click += RegisterButton_Click!;
 
             Button btnFemale = new Button
             {
@@ -242,10 +252,6 @@ public partial class EntryRecordForm : Form
         rightPanel.Controls.Add(buttonPanel, 0, 1);
 
         pnlButtons.Controls.Add(rightPanel, 1, 0); // 📌 Agregar panel derecho en la segunda columna
-
-
-
-
 
         // -- Sección para "Otros" (Docente, Administrativo, Visitante)
         TableLayoutPanel externalTablePanel = new TableLayoutPanel
@@ -350,7 +356,7 @@ public partial class EntryRecordForm : Form
             seriesPie["PieLabelStyle"] = "Outside";  // Etiquetas fuera del pastel
             seriesPie["OutsideLabelPlacement"] = "Right";  // Ubicarlas a la derecha
             seriesPie["PieLineColor"] = "Black";  // Dibujar líneas de conexión
-            
+
             foreach (var career in careerCounts.Values)
             {
                 seriesPie.Points.AddXY(career.Name, career.Count);

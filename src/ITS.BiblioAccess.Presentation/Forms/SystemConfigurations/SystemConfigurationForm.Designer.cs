@@ -69,6 +69,8 @@
             Controls.Add(label1);
             Controls.Add(btnAccept);
             Controls.Add(dtpExportHour);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "SystemConfigurationForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Configuracion";

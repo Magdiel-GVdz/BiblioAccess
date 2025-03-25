@@ -1,12 +1,12 @@
-﻿using ITS.BiblioAccess.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using ITS.BiblioAccess.Application;
+﻿using ITS.BiblioAccess.Application;
 using ITS.BiblioAccess.Infrastructure;
 using ITS.BiblioAccess.Presentation.Forms;
 using ITS.BiblioAccess.Presentation.Forms.Careers;
-using ITS.BiblioAccess.Presentation.Forms.SystemConfigurations;
 using ITS.BiblioAccess.Presentation.Forms.EntryRecors;
+using ITS.BiblioAccess.Presentation.Forms.Reports;
+using ITS.BiblioAccess.Presentation.Forms.SystemConfigurations;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace ITS.BiblioAccess.Presentation;
@@ -30,5 +30,8 @@ public static class Startup
         services.AddTransient<SystemConfigurationForm>();
         services.AddTransient<EditCareerForm>();
         services.AddTransient<EntryRecordForm>();
+        services.AddTransient<ExcelExporter>();
+        services.AddTransient<ExcelReportsForm>();
+
     }
 }

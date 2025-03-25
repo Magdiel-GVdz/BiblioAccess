@@ -46,6 +46,7 @@ public class EntryRecord
             return Result.Fail(errors);
         }
 
+
         TimeZoneInfo mexicoTimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Mexico_City");
         DateTime localMexicoTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, mexicoTimeZone);
 

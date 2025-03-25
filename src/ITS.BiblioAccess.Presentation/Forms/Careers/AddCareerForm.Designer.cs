@@ -67,6 +67,8 @@
             Controls.Add(txtName);
             Controls.Add(lblName);
             Controls.Add(btnAdd);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "AddCareerForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Añadir una nueva carrera";

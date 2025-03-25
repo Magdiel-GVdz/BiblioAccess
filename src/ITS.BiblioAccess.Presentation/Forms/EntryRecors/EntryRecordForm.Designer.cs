@@ -50,9 +50,11 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(pnlButtons);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "EntryRecordForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "EntryRecordForm";
+            Text = "Registro de ingresos";
             WindowState = FormWindowState.Maximized;
             Load += EntryRecordForm_Load;
             ResumeLayout(false);

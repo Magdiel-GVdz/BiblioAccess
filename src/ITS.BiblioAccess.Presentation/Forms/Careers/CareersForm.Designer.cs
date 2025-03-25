@@ -86,6 +86,8 @@
             Controls.Add(btnEdit);
             Controls.Add(btnAdd);
             Controls.Add(dgvCareers);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "CareersForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Carreras";

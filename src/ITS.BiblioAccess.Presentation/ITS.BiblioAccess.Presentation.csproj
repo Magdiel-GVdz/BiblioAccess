@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ITS.BiblioAccess.Application\ITS.BiblioAccess.Application.csproj" />
+    <ProjectReference Include="..\ITS.BiblioAccess.Domain\ITS.BiblioAccess.Domain.csproj" />
     <ProjectReference Include="..\ITS.BiblioAccess.Infrastructure\ITS.BiblioAccess.Infrastructure.csproj" />
   </ItemGroup>
 

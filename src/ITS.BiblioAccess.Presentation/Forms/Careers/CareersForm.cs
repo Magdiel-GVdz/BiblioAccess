@@ -65,8 +65,22 @@ namespace ITS.BiblioAccess.Presentation.Forms.Careers
                 dgvCareers.DataSource = null; // Limpiar primero para forzar la actualización
                 dgvCareers.DataSource = careerDTOs;
                 HideIdColumn();
+                RenameColumns();
             }
         }
+        private void RenameColumns()
+        {
+            if (dgvCareers.Columns["Name"] != null)
+            {
+                dgvCareers.Columns["Name"].HeaderText = "Nombre";
+            }
+
+            if (dgvCareers.Columns["IsActive"] != null)
+            {
+                dgvCareers.Columns["IsActive"].HeaderText = "Activo";
+            }
+        }
+
 
         private void HideIdColumn()
         {

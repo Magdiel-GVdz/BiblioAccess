@@ -1,13 +1,11 @@
-﻿using ITS.BiblioAccess.Domain.Entities;
-using ITS.BiblioAccess.Domain.Repositories;
+﻿using ITS.BiblioAccess.Domain.Repositories;
 using ITS.BiblioAccess.Presentation.Forms.Careers;
 using ITS.BiblioAccess.Presentation.Forms.EntryRecors;
+using ITS.BiblioAccess.Presentation.Forms.Reports;
 using ITS.BiblioAccess.Presentation.Forms.SystemConfigurations;
-using ITS.BiblioAccess.Presentation.Utils;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Timers;
-using static ITS.BiblioAccess.Application.UseCases.EntryRecords.Queries.GetDailyEntryRecordsUseCase;
 using static ITS.BiblioAccess.Application.UseCases.SystemConfigurations.Queries.GetExportHourUseCase;
 
 namespace ITS.BiblioAccess.Presentation.Forms
@@ -26,7 +24,7 @@ namespace ITS.BiblioAccess.Presentation.Forms
             _serviceProvider = serviceProvider;
             _mediator = mediator;
             _careerRepository = careerRepository;
-            
+
 
             // Configurar el Timer para ejecución programada
             _timer = new System.Timers.Timer(60000); // Revisión cada 60 segundos
@@ -65,23 +63,22 @@ namespace ITS.BiblioAccess.Presentation.Forms
 
         private async Task ExportEntries()
         {
-            var result = await _mediator.Send(new GetDailyEntryRecordsQuery());
-
-            if (result.IsSuccess && result.Value.Count > 0)
+            try
             {
-                List<EntryRecord> entries = result.Value;
+                var excelExporter = new ExcelExporter(_careerRepository, _mediator);
+                bool success = await excelExporter.ExportDailyEntriesToExcel();
 
-                try
+                if (!success)
                 {
-                    var excelExporter = new ExcelExporter(_careerRepository);
-                    await excelExporter.ExportEntriesToExcel(entries);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al exportar registros: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("No hay registros para exportar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al exportar registros: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
 
         private void btnCareers_Click(object sender, EventArgs e)
         {
@@ -94,17 +91,17 @@ namespace ITS.BiblioAccess.Presentation.Forms
             using var systemConfigurationForm = _serviceProvider.GetRequiredService<SystemConfigurationForm>();
 
             // Asegurar que no se suscriba múltiples veces
-            systemConfigurationForm.OnExportHourUpdated -= UpdateExportHour;
-            systemConfigurationForm.OnExportHourUpdated += UpdateExportHour;
+            //systemConfigurationForm.OnExportHourUpdated -= UpdateExportHour;
+            //systemConfigurationForm.OnExportHourUpdated += UpdateExportHour;
 
             systemConfigurationForm.ShowDialog();
         }
 
-        private void UpdateExportHour(TimeOnly newExportHour)
-        {
-            _exportTime = newExportHour;
-            MessageBox.Show($"La hora de exportación se ha actualizado a: {_exportTime}", "Actualización", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
+        //private void UpdateExportHour(TimeOnly newExportHour)
+        //{
+        //    _exportTime = newExportHour;
+        //    MessageBox.Show($"La hora de exportación se ha actualizado a: {_exportTime}", "Actualización", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //}
 
         private void btnEntryRecords_Click(object sender, EventArgs e)
         {
@@ -126,6 +123,17 @@ namespace ITS.BiblioAccess.Presentation.Forms
             _timer.Stop();
             _timer.Dispose();
             System.Windows.Forms.Application.Exit();
+        }
+
+        private void btnExport_Click(object sender, EventArgs e)
+        {
+            ExcelReportsForm excelReportsForm = _serviceProvider.GetRequiredService<ExcelReportsForm>();
+            excelReportsForm.ShowDialog();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
