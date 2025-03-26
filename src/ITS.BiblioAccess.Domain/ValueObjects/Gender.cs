@@ -10,7 +10,7 @@ public enum Gender
     [Description("Mujer")]
     Female,
 
-    [Description("NA")]
+    [Description("N/A")]
     NA
 }
 
