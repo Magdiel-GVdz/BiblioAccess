@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static ITS.BiblioAccess.Application.UseCases.SystemConfigurations.Commands.UpdateExportHourUseCase;
 
 namespace ITS.BiblioAccess.Presentation.Forms.SystemConfigurations
 {
@@ -30,7 +31,7 @@ namespace ITS.BiblioAccess.Presentation.Forms.SystemConfigurations
             TimeOnly selectedTime = TimeOnly.FromDateTime(dtpExportHour.Value);
 
             // Ejecutar el caso de uso mediante MediatR
-            var command = new UpdateExportHourUseCase.UpdateExportHourCommand(selectedTime);
+            var command = new UpdateExportHourCommand(selectedTime);
             var result = await _mediator.Send(command);
 
             // Verificar si la actualización fue exitosa

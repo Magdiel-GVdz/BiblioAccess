@@ -91,17 +91,17 @@ namespace ITS.BiblioAccess.Presentation.Forms
             using var systemConfigurationForm = _serviceProvider.GetRequiredService<SystemConfigurationForm>();
 
             // Asegurar que no se suscriba múltiples veces
-            //systemConfigurationForm.OnExportHourUpdated -= UpdateExportHour;
-            //systemConfigurationForm.OnExportHourUpdated += UpdateExportHour;
+            systemConfigurationForm.OnExportHourUpdated -= UpdateExportHour;
+            systemConfigurationForm.OnExportHourUpdated += UpdateExportHour;
 
             systemConfigurationForm.ShowDialog();
         }
 
-        //private void UpdateExportHour(TimeOnly newExportHour)
-        //{
-        //    _exportTime = newExportHour;
-        //    MessageBox.Show($"La hora de exportación se ha actualizado a: {_exportTime}", "Actualización", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //}
+        private void UpdateExportHour(TimeOnly newExportHour)
+        {
+            _exportTime = newExportHour;
+            //MessageBox.Show($"La hora de exportación se ha actualizado a: {_exportTime}", "Actualización", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
 
         private void btnEntryRecords_Click(object sender, EventArgs e)
         {
